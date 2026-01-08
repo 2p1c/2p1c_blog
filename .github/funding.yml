@@ -1,0 +1,13 @@
+open_collective: abd857
+custom:
+  - https://2p1c.github.io/pages/sponsor.html
+
+# Fiscal host 申请表里的 “project profile URL” 通常指你的 OpenCollective 项目主页：
+#   https://opencollective.com/Diss-Lab
+# 不是 donate 链接（donate 只是捐赠落地页）：
+#   https://opencollective.com/Diss-Lab/donate
+
+# OpenCollective 里的 Host（Fiscal Host）= 代收代付与合规主体：
+# - 用 Host 的法律/财务身份帮你的 Collective 收款（信用卡/转账/PayPal 等取决于 Host）
+# - 你通过提交 Expense（报销/费用）由 Host 审核后打款
+# - 通常会收取一定托管费，并有合规/用途限制
