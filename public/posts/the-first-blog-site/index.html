@@ -3,24 +3,24 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My Second Post | 2p1c&#39;s B1og</title>
+    <title>The First Blog Site | 2p1c&#39;s B1og</title>
     
     
     
-    <meta name="description" content="A nostalgic journey through the early web">
+    <meta name="description" content="The detail procedure of creating the first blog site.">
     
     
     
-    <meta property="og:title" content="My Second Post | 2p1c&#39;s B1og">
-    <meta property="og:description" content="A nostalgic journey through the early web">
+    <meta property="og:title" content="The First Blog Site | 2p1c&#39;s B1og">
+    <meta property="og:description" content="The detail procedure of creating the first blog site.">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="http://39.106.85.231/posts/my-second-post/">
+    <meta property="og:url" content="http://39.106.85.231/posts/the-first-blog-site/">
     
     
     
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="My Second Post | 2p1c&#39;s B1og">
-    <meta name="twitter:description" content="A nostalgic journey through the early web">
+    <meta name="twitter:title" content="The First Blog Site | 2p1c&#39;s B1og">
+    <meta name="twitter:description" content="The detail procedure of creating the first blog site.">
     
     
     
@@ -48,7 +48,7 @@
         </div>
         <div class="address-bar">
             
-            http://39.106.85.231/posts/my-second-post/
+            http://39.106.85.231/posts/the-first-blog-site/
             
         </div>
     </div>
@@ -131,7 +131,7 @@
             
 <article class="window">
     <div class="window-header">
-        <span class="window-title">My Second Post</span>
+        <span class="window-title">The First Blog Site</span>
         <div class="window-controls">
             <span class="window-button">_</span>
             <span class="window-button">□</span>
@@ -140,7 +140,7 @@
     </div>
     <div class="window-content">
         <header class="content-header">
-            <h1 class="post-title">My Second Post</h1>
+            <h1 class="post-title">The First Blog Site</h1>
             
             
             <div class="post-meta">
@@ -149,22 +149,34 @@
                 </span>
                 
                 <span class="post-meta-item">
-                    📖 1 min read
+                    📖 2 min read
                 </span>
                 <span class="post-meta-item">
-                    📊 8 words
+                    📊 353 words
                 </span>
                 
                 
                 
                 
                 
+                
+                <span class="post-meta-item">
+                    🏷️ Tags: 
+                    
+                        
+                        <a href="http://39.106.85.231/tags/tecs">tecs</a>
+                    
+                </span>
                 
                 
                 
             </div>
             
             
+            
+            <div class="post-description" style="font-style: italic; margin: 8px 0; padding: 4px 8px; background: var(--bg-secondary); border: 1px inset var(--border-dark);">
+                The detail procedure of creating the first blog site.
+            </div>
             
             
             
@@ -175,7 +187,251 @@
         
         
         <div class="content">
-            <p>hola, everyone! This is my <strong>second</strong> blog post.</p>
+            <h1 id="hugo-博客从租服务器到正式上线完整实战总结">Hugo 博客从租服务器到正式上线：完整实战总结</h1>
+<blockquote>
+<p>本文总结了一次<strong>从零开始</strong>将本地 Hugo 博客（使用 <code>vintage-web-hugo-theme</code> 主题）部署到 <strong>阿里云 Linux 服务器</strong> 并成功上线的完整流程，同时在最后给出「最强大脑式」的抽象总结，帮助你形成可迁移的通用模型。</p>
+</blockquote>
+<hr>
+<h2 id="一总体目标">一、总体目标</h2>
+<ul>
+<li>将<strong>本地已构建完成的 Hugo 博客</strong>部署到公网可访问的服务器</li>
+<li>使用 <strong>阿里云 ECS + Linux + Nginx</strong></li>
+<li>使用<strong>自己的域名或 IP 访问</strong></li>
+<li>网站样式、JS、CSS 全部正常加载</li>
+</ul>
+<hr>
+<h2 id="二阶段一服务器租用与初始化">二、阶段一：服务器租用与初始化</h2>
+<h3 id="1-选择云服务器">1. 选择云服务器</h3>
+<ul>
+<li>
+<p>云厂商：<strong>阿里云 ECS</strong></p>
+</li>
+<li>
+<p>操作系统：<strong>Ubuntu / CentOS（推荐 Ubuntu 20.04+）</strong></p>
+</li>
+<li>
+<p>实例规格：</p>
+<ul>
+<li>1 核 CPU / 1~2GB 内存即可</li>
+</ul>
+</li>
+<li>
+<p>网络：</p>
+<ul>
+<li>分配公网 IPv4 地址</li>
+</ul>
+</li>
+</ul>
+<p>👉 关键点：</p>
+<ul>
+<li>你是<strong>第一次使用 Linux</strong>，完全没问题，本流程就是为此设计的</li>
+</ul>
+<hr>
+<h3 id="2-设置登录方式非常关键">2. 设置登录方式（非常关键）</h3>
+<p>你遇到的第一个坑：<strong>设置密码按钮点了没反应</strong></p>
+<p>正确认知：</p>
+<ul>
+<li>
+<p>阿里云 ECS 的登录密码并不是实时生效</p>
+</li>
+<li>
+<p>正确流程：</p>
+<ol>
+<li>控制台 → 实例 → 更多 → 重置实例密码</li>
+<li><strong>必须重启实例</strong></li>
+</ol>
+</li>
+</ul>
+<p>验证方式：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ssh root@你的服务器IP
+</span></span></code></pre></div><p>看到：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>root@xxx:~#
+</span></span></code></pre></div><p>说明你已经成功进入服务器</p>
+<hr>
+<h2 id="三阶段二基础运行环境搭建">三、阶段二：基础运行环境搭建</h2>
+<h3 id="3-安装并验证-nginx">3. 安装并验证 Nginx</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt update
+</span></span><span style="display:flex;"><span>sudo apt install nginx -y
+</span></span></code></pre></div><p>启动并检查状态：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>systemctl status nginx
+</span></span></code></pre></div><p>浏览器访问：</p>
+<pre tabindex="0"><code>http://服务器IP
+</code></pre><p>看到：</p>
+<pre tabindex="0"><code>Welcome to nginx!
+</code></pre><p>✅ 说明三件事：</p>
+<ol>
+<li>服务器网络正常</li>
+<li>Web 服务已运行</li>
+<li>80 端口未被防火墙拦截</li>
+</ol>
+<hr>
+<h3 id="4-安装-hugo服务器端">4. 安装 Hugo（服务器端）</h3>
+<p>常见误区：</p>
+<blockquote>
+<p>「我本地装了 Hugo，服务器是不是不用装？」</p>
+</blockquote>
+<p>❌ 错</p>
+<p>👉 <strong>服务器如果要自己 build，也必须装 Hugo</strong></p>
+<p>Ubuntu 示例：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt install hugo -y
+</span></span><span style="display:flex;"><span>hugo version
+</span></span></code></pre></div><hr>
+<h2 id="四阶段三部署-hugo-博客">四、阶段三：部署 Hugo 博客</h2>
+<p>你使用的主题仓库：</p>
+<pre tabindex="0"><code>https://github.com/raisingpixels/vintage-web-hugo-theme.git
+</code></pre><p>该主题推荐的方式是：</p>
+<h3 id="-正确部署方式本地-build--上传静态文件">✅ 正确部署方式：本地 build → 上传静态文件</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo
+</span></span></code></pre></div><p>生成：</p>
+<pre tabindex="0"><code>public/
+</code></pre><hr>
+<h3 id="5-上传-public-目录到服务器">5. 上传 public 目录到服务器</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>scp -r public/* root@服务器IP:/var/www/html/
+</span></span></code></pre></div><p>⚠️ 你中途遇到的问题：</p>
+<pre tabindex="0"><code>Permission denied
+</code></pre><p>根因总结：</p>
+<ul>
+<li>服务器用户名不对（应使用 root）</li>
+<li>或密码 / SSH 登录方式错误</li>
+</ul>
+<p>最终成功后：</p>
+<ul>
+<li>网站可访问</li>
+<li><strong>但没有样式 ❌</strong></li>
+</ul>
+<hr>
+<h2 id="五阶段四样式丢失问题的本质分析">五、阶段四：样式丢失问题的本质分析</h2>
+<h3 id="6-问题现象">6. 问题现象</h3>
+<ul>
+<li>页面有内容</li>
+<li>CSS / JS 全部没加载</li>
+<li>浏览器 Network 显示 404</li>
+</ul>
+<hr>
+<h3 id="7-根因baseurl-错误">7. 根因：<code>baseURL</code> 错误</h3>
+<p>Hugo 中：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-toml" data-lang="toml"><span style="display:flex;"><span><span style="color:#a6e22e">baseURL</span> = <span style="color:#e6db74">&#34;http://localhost:1313/&#34;</span>
+</span></span></code></pre></div><p>❌ 部署到服务器后仍然是 localhost</p>
+<p>👉 结果：</p>
+<ul>
+<li>HTML 访问的是：</li>
+</ul>
+<pre tabindex="0"><code>http://localhost/css/style.css
+</code></pre><p>浏览器当然加载不到</p>
+<hr>
+<h3 id="8-正确做法">8. 正确做法</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-toml" data-lang="toml"><span style="display:flex;"><span><span style="color:#a6e22e">baseURL</span> = <span style="color:#e6db74">&#34;http://你的IP/&#34;</span>  <span style="color:#75715e"># 或域名</span>
+</span></span></code></pre></div><p>然后：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo
+</span></span><span style="display:flex;"><span>scp -r public/* root@服务器IP:/var/www/html/
+</span></span></code></pre></div><p>✅ 样式恢复，网站完整显示</p>
+<hr>
+<h2 id="六阶段五控制台报错的解释你看到的红字">六、阶段五：控制台报错的解释（你看到的红字）</h2>
+<h3 id="9-报错-1faviconico-404">9. 报错 1：favicon.ico 404</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>GET /favicon.ico 404
+</span></span></code></pre></div><p>原因：</p>
+<ul>
+<li>浏览器自动请求</li>
+<li>你的网站没提供 favicon</li>
+</ul>
+<p>解决方式（任选）：</p>
+<ul>
+<li>在 <code>static/</code> 中放一个 <code>favicon.ico</code></li>
+<li>或忽略（<strong>完全不影响功能</strong>）</li>
+</ul>
+<hr>
+<h3 id="10-报错-2supabase--contentjs--session">10. 报错 2：Supabase / content.js / session</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Failed to get session: null
+</span></span><span style="display:flex;"><span>POST supabase.co/auth/v1/token 400
+</span></span></code></pre></div><p>本质判断：</p>
+<p>👉 <strong>不是你的网站错误</strong></p>
+<p>来源可能是：</p>
+<ul>
+<li>浏览器插件</li>
+<li>主题中遗留的 JS</li>
+<li>历史测试代码</li>
+</ul>
+<p>为什么是 400？</p>
+<ul>
+<li>请求里带了空 refresh_token</li>
+<li>Supabase 返回 Bad Request</li>
+</ul>
+<p>解决策略：</p>
+<ul>
+<li>
+<p>如果你没用 Supabase：</p>
+<ul>
+<li>删除相关 JS</li>
+<li>或忽略</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="11-统一理解-400-错误">11. 统一理解 400 错误</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Failed to load resource: the server responded with a status of 400
+</span></span></code></pre></div><p><strong>400 = 请求格式错误</strong></p>
+<p>不是服务器宕机
+不是网络错误</p>
+<p>👉 是「客户端发了不合理的请求」</p>
+<hr>
+<h2 id="七最终状态确认清单">七、最终状态确认清单</h2>
+<p>✅ 页面可访问
+✅ 样式正常
+✅ JS 正常（除无关插件）
+✅ Hugo 本地 / 服务器流程清晰</p>
+<p>你已经完成：</p>
+<blockquote>
+<p><strong>一次完整的工程级部署闭环</strong></p>
+</blockquote>
+<hr>
+<h2 id="八最强大脑式抽象总结核心模型">八、「最强大脑式」抽象总结（核心模型）</h2>
+<h3 id="-一句话模型">🧠 一句话模型</h3>
+<blockquote>
+<p><strong>Hugo = 内容生成器，Nginx = 静态文件服务器</strong></p>
+</blockquote>
+<hr>
+<h3 id="-三层结构抽象">🧩 三层结构抽象</h3>
+<pre tabindex="0"><code>[ 浏览器 ]
+     ↓ HTTP
+[ Nginx ]  ——  只负责“给文件”
+     ↓
+[ /var/www/html ] —— public 里的静态文件
+</code></pre><hr>
+<h3 id="-hugo-的真正角色">🧠 Hugo 的真正角色</h3>
+<ul>
+<li>Hugo <strong>不会运行在服务器上给用户看</strong></li>
+<li>它只做一件事：</li>
+</ul>
+<pre tabindex="0"><code>Markdown → HTML + CSS + JS
+</code></pre><hr>
+<h3 id="-所有问题的母题">🔑 所有问题的母题</h3>
+<table>
+  <thead>
+      <tr>
+          <th>问题</th>
+          <th>本质</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>样式丢失</td>
+          <td>URL 错误</td>
+      </tr>
+      <tr>
+          <td>404</td>
+          <td>文件不存在</td>
+      </tr>
+      <tr>
+          <td>400</td>
+          <td>请求不合法</td>
+      </tr>
+      <tr>
+          <td>登录失败</td>
+          <td>权限 / 认证</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
 
         </div>
         
@@ -187,13 +443,13 @@
             <div class="sharing" style="margin-bottom: 12px;">
                 <div style="font-weight: bold; margin-bottom: 6px;">📤 Share this post:</div>
                 <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                    <a href="https://twitter.com/intent/tweet?text=My%20Second%20Post&url=http%3a%2f%2f39.106.85.231%2fposts%2fmy-second-post%2f" 
+                    <a href="https://twitter.com/intent/tweet?text=The%20First%20Blog%20Site&url=http%3a%2f%2f39.106.85.231%2fposts%2fthe-first-blog-site%2f" 
                        target="_blank" class="btn" style="font-size: 10px;">Twitter</a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2f39.106.85.231%2fposts%2fmy-second-post%2f" 
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=http%3a%2f%2f39.106.85.231%2fposts%2fthe-first-blog-site%2f" 
                        target="_blank" class="btn" style="font-size: 10px;">Facebook</a>
-                    <a href="https://www.linkedin.com/sharing/share-offsite/?url=http%3a%2f%2f39.106.85.231%2fposts%2fmy-second-post%2f" 
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url=http%3a%2f%2f39.106.85.231%2fposts%2fthe-first-blog-site%2f" 
                        target="_blank" class="btn" style="font-size: 10px;">LinkedIn</a>
-                    <a href="mailto:?subject=My%20Second%20Post&body=http%3a%2f%2f39.106.85.231%2fposts%2fmy-second-post%2f" 
+                    <a href="mailto:?subject=The%20First%20Blog%20Site&body=http%3a%2f%2f39.106.85.231%2fposts%2fthe-first-blog-site%2f" 
                        class="btn" style="font-size: 10px;">Email</a>
                 </div>
             </div>
@@ -225,31 +481,14 @@
             </div>
         </div>
         <div class="window-content">
-            <a href="http://39.106.85.231/posts/hello-world/" style="text-decoration: none; color: inherit;">
-                <div style="font-weight: bold; font-size: 10px; margin-bottom: 2px;">Hello World</div>
-                <div style="font-size: 9px; color: var(--text-secondary);">Jan 1, 2026</div>
-            </a>
-        </div>
-    </div>
-    
-    
-    
-    <div class="window">
-        <div class="window-header">
-            <span class="window-title">Next Post →</span>
-            <div class="window-controls">
-                <span class="window-button">_</span>
-                <span class="window-button">□</span>
-                <span class="window-button">×</span>
-            </div>
-        </div>
-        <div class="window-content">
-            <a href="http://39.106.85.231/posts/the-first-blog-site/" style="text-decoration: none; color: inherit;">
-                <div style="font-weight: bold; font-size: 10px; margin-bottom: 2px;">The First Blog Site</div>
+            <a href="http://39.106.85.231/posts/my-second-post/" style="text-decoration: none; color: inherit;">
+                <div style="font-weight: bold; font-size: 10px; margin-bottom: 2px;">My Second Post</div>
                 <div style="font-size: 9px; color: var(--text-secondary);">Jan 9, 2026</div>
             </a>
         </div>
     </div>
+    
+    
     
 </nav>
 
@@ -522,7 +761,7 @@
         <div class="status-right">
             <span class="status-item">2p1c&#39;s B1og</span>
             
-            <span class="status-item">8 words</span>
+            <span class="status-item">353 words</span>
             
         </div>
     </div>

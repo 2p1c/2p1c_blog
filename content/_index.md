@@ -4,9 +4,19 @@ date: 1999-12-31T23:59:59Z
 draft: false
 ---
 
-# 🌐 Welcome to Retro Web Central! 🌐
+# ✍️ Write a new post or change jS or CSS
 
-**You are visitor #999,999!** 
+1️⃣ 本地构建
+
+```hugo```
+
+2️⃣ 同步到服务器
+
+```wsl rsync -av --delete public/ root@39.106.85.231:/var/www/html/```
+
+3️⃣ 服务器对齐权限
+
+```sudo /usr/local/bin/fix-web-permissions.sh```
 
 ## 🎉 What's Hot on the Web! 🎉
 
