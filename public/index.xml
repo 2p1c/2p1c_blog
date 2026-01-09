@@ -1,19 +1,23 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>2p1c&#39;s B1og</title>
-    <link>http://localhost:1313/</link>
-    <description>Recent content on 2p1c&#39;s B1og</description>
-    <generator>Hugo</generator>
-    <language>en-us</language>
-    <lastBuildDate>Thu, 01 Jan 2026 10:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Hello World</title>
-      <link>http://localhost:1313/posts/hello-world/</link>
-      <pubDate>Thu, 01 Jan 2026 10:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/hello-world/</guid>
-      <description>&lt;p&gt;这是我的第一篇博客文章。&#xA;大家好，欢迎来到我的博客！&lt;/p&gt;</description>
-    </item>
-  </channel>
-</rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Welcome to Retro Web Central! on 2p1c's B1og</title><link>http://39.106.85.231/</link><description>Recent content in Welcome to Retro Web Central! on 2p1c's B1og</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Thu, 01 Jan 2026 10:00:00 +0000</lastBuildDate><atom:link href="http://39.106.85.231/index.xml" rel="self" type="application/rss+xml"/><item><title>Hello World</title><link>http://39.106.85.231/posts/hello-world/</link><pubDate>Thu, 01 Jan 2026 10:00:00 +0000</pubDate><guid>http://39.106.85.231/posts/hello-world/</guid><description>&lt;p&gt;这是我的第一篇博客文章。
+大家好，欢迎来到我的博客！&lt;/p&gt;</description></item><item><title>Sign Our Guestbook!</title><link>http://39.106.85.231/guestbook/</link><pubDate>Mon, 20 Dec 1999 12:00:00 +0000</pubDate><guid>http://39.106.85.231/guestbook/</guid><description>&lt;h1 id="-please-sign-our-guestbook-"&gt;📝 Please Sign Our Guestbook! 📝&lt;/h1&gt;
+&lt;p&gt;Welcome to our &lt;strong&gt;TOTALLY AWESOME&lt;/strong&gt; guestbook! Share your thoughts, drop us a line, or just say &amp;ldquo;Hi!&amp;rdquo; from wherever you are in cyberspace. We love hearing from fellow web enthusiasts!&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;
+&lt;hr&gt;
+&lt;h2 id="recent-entries-"&gt;Recent Entries 💬&lt;/h2&gt;
+&lt;h3 id="websurfer2000---december-19-1999-at-1147-pm"&gt;&lt;strong&gt;WebSurfer2000&lt;/strong&gt; - &lt;em&gt;December 19, 1999 at 11:47 PM&lt;/em&gt;&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&amp;ldquo;This site is THE BOMB! 💥 Your animated GIF collection saved my homepage. Bookmarked and telling all my friends! Keep up the awesome work!&amp;rdquo;&lt;/p&gt;</description></item><item><title>About Retro Web Central</title><link>http://39.106.85.231/about/</link><pubDate>Wed, 01 Dec 1999 10:00:00 +0000</pubDate><guid>http://39.106.85.231/about/</guid><description>&lt;h1 id="about-retro-web-central-"&gt;About Retro Web Central 🌐&lt;/h1&gt;
+&lt;h2 id="welcome-to-the-coolest-corner-of-cyberspace"&gt;Welcome to the Coolest Corner of Cyberspace!&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Greetings, fellow netizen!&lt;/strong&gt; You&amp;rsquo;ve discovered the ultimate destination for everything that makes the World Wide Web totally awesome. Retro Web Central has been your trusted guide to the digital frontier since 1999!&lt;/p&gt;
+&lt;h2 id="our-mission-"&gt;Our Mission 🎯&lt;/h2&gt;
+&lt;p&gt;We&amp;rsquo;re dedicated to bringing you:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;🔥 &lt;strong&gt;The hottest web design trends&lt;/strong&gt; from around the globe&lt;/li&gt;
+&lt;li&gt;💻 &lt;strong&gt;Cutting-edge technology reviews&lt;/strong&gt; and tutorials&lt;/li&gt;
+&lt;li&gt;🎨 &lt;strong&gt;Graphic resources&lt;/strong&gt; to make your site shine&lt;/li&gt;
+&lt;li&gt;🚀 &lt;strong&gt;Y2K preparedness&lt;/strong&gt; information and updates&lt;/li&gt;
+&lt;li&gt;🎮 &lt;strong&gt;Gaming news&lt;/strong&gt; and reviews&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="meet-the-team-"&gt;Meet the Team 👥&lt;/h2&gt;
+&lt;h3 id="webmaster3000---site-administrator"&gt;WebMaster3000 - Site Administrator&lt;/h3&gt;
+&lt;p&gt;&lt;em&gt;&amp;ldquo;Making the web a more colorful place, one animated GIF at a time!&amp;rdquo;&lt;/em&gt;&lt;/p&gt;</description></item></channel></rss>
