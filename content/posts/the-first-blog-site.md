@@ -6,13 +6,13 @@ tags = ['tecs']
 description = 'The detail procedure of creating the first blog site.'
 +++
 
-# Hugo 博客从租服务器到正式上线：完整实战总结
+**Hugo 博客从租服务器到正式上线：完整实战总结**
 
 > 本文总结了一次**从零开始**将本地 Hugo 博客（使用 `vintage-web-hugo-theme` 主题）部署到 **阿里云 Linux 服务器** 并成功上线的完整流程，同时在最后给出「最强大脑式」的抽象总结，帮助你形成可迁移的通用模型。
 
 ---
 
-## 一、总体目标
+**一、总体目标**
 
 - 将**本地已构建完成的 Hugo 博客**部署到公网可访问的服务器
 - 使用 **阿里云 ECS + Linux + Nginx**
