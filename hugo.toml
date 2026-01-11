@@ -19,17 +19,17 @@ canonifyURLs = true
 
 # Menu
 [[menu.main]]
-  name = "Home"
+  name = "❤️‍🩹 Home"
   url = "/"
   weight = 10
 
 [[menu.main]]
-  name = "Posts"
+  name = "📝 Posts"
   url = "/posts/"
   weight = 20
 
 [[menu.main]]
-  name = "About"
+  name = "👤 About"
   url = "/about/"
   weight = 30
 
@@ -40,16 +40,16 @@ canonifyURLs = true
   author = "2p1c"
 
   # Retro Features
-  show_browser_chrome = true
-  show_status_bar = true
+  show_browser_chrome = false
+  show_status_bar = false
   show_sidebar = true
-  show_welcome_message = true
-  welcome_message = "Welcome to our vintage web experience!"
+  show_welcome_message = false
+  welcome_message = " 2p1c's blog "
 
   # Content Display
-  show_featured_sections = true
+  show_featured_sections = false
   show_stats = true
-  show_retro_elements = true
+  show_retro_elements = false
   show_sharing = true
 
   # Footer Options
@@ -58,7 +58,7 @@ canonifyURLs = true
 
   # Sidebar Options
   show_sidebar_stats = true
-  show_retro_sidebar = true
+  show_retro_sidebar = false
   sidebar_content = "Welcome to our retro corner of the internet!"
 
   # Social Links
@@ -70,6 +70,7 @@ canonifyURLs = true
     mastodon = "https://mastodon.social/@username"
     youtube = "channelname"
     instagram = "username"
+    phonenumber = "18617715681"
 
   # SEO and Analytics
   google_analytics = "G-XXXXXXXXXX"

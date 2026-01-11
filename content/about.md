@@ -1,5 +1,5 @@
 ---
-title: "About Retro Web Central"
+title: "About"
 date: 1999-12-01T10:00:00Z
 draft: false
 description: "Learn about the most radical website on the World Wide Web"

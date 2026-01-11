@@ -1,22 +1,22 @@
 ---
-title: "Welcome to Retro Web Central!"
+title: "Welcome！"
 date: 1999-12-31T23:59:59Z
 draft: false
 ---
 
-# ✍️ Write a new post or change jS or CSS
+# ✍️ Write a new post or change JS or CSS
 
 1️⃣ 本地构建
 
-```hugo```
+`hugo`
 
 2️⃣ 同步到服务器
 
-```wsl rsync -av --delete public/ root@39.106.85.231:/var/www/html/```
+`wsl rsync -av --delete public/ root@39.106.85.231:/var/www/html/`
 
 3️⃣ 服务器对齐权限
 
-```sudo /usr/local/bin/fix-web-permissions.sh```
+`sudo /usr/local/bin/fix-web-permissions.sh`
 
 ## 🎉 What's Hot on the Web! 🎉
 
@@ -25,7 +25,7 @@ Greetings, fellow netizen! You've stumbled upon the most tubular corner of the i
 ### 🔥 Latest Updates 🔥
 
 - **NEW!** Our guestbook is now live! [Sign it here!](/guestbook/)
-- **COOL!** Check out our [HTML tutorials](/posts/html-basics-1999/) 
+- **COOL!** Check out our [HTML tutorials](/posts/html-basics-1999/)
 - **RAD!** [Geocities vs. Angelfire showdown](/posts/geocities-vs-angelfire/)
 - **AWESOME!** [Best animated GIFs of the decade](/posts/best-animated-gifs/)
 
@@ -50,6 +50,7 @@ The new millennium is approaching and technology is advancing at warp speed! We'
 ### 💾 System Requirements
 
 This site is optimized for:
+
 - **Browser:** Netscape Navigator 4.0+ or Internet Explorer 4.0+
 - **Resolution:** 1024x768 (Higher resolutions supported!)
 - **Colors:** 256 colors minimum, True Color recommended
@@ -65,12 +66,6 @@ This site is optimized for:
 
 ---
 
-**This site is under construction! 🚧 Check back often for updates!**
+**This site is under construction! 🚧 **
 
-<center>
-<img src="https://via.placeholder.com/88x31/FF00FF/FFFFFF?text=Made+with+HTML" alt="Made with HTML" /> 
-<img src="https://via.placeholder.com/88x31/00FFFF/000000?text=Best+viewed+in+Netscape" alt="Best viewed in Netscape" />
-<img src="https://via.placeholder.com/88x31/FFFF00/000000?text=Y2K+Ready" alt="Y2K Ready" />
-</center>
-
-*Last updated: December 31, 1999 at 11:59 PM*
+Last updated: Jan ,2026 

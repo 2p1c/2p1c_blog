@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tecs on 2p1c&#39;s B1og</title>
-    <link>http://39.106.85.231/tags/tecs/</link>
+    <link>http://localhost:1313/tags/tecs/</link>
     <description>Recent content in Tecs on 2p1c&#39;s B1og</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 09 Jan 2026 10:55:15 +0800</lastBuildDate>
-    <atom:link href="http://39.106.85.231/tags/tecs/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/tags/tecs/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>The First Blog Site</title>
-      <link>http://39.106.85.231/posts/the-first-blog-site/</link>
+      <link>http://localhost:1313/posts/the-first-blog-site/</link>
       <pubDate>Fri, 09 Jan 2026 10:55:15 +0800</pubDate>
-      <guid>http://39.106.85.231/posts/the-first-blog-site/</guid>
+      <guid>http://localhost:1313/posts/the-first-blog-site/</guid>
       <description>&lt;p&gt;&lt;strong&gt;Hugo 博客从租服务器到正式上线：完整实战总结&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;本文总结了一次&lt;strong&gt;从零开始&lt;/strong&gt;将本地 Hugo 博客（使用 &lt;code&gt;vintage-web-hugo-theme&lt;/code&gt; 主题）部署到 &lt;strong&gt;阿里云 Linux 服务器&lt;/strong&gt; 并成功上线的完整流程，同时在最后给出「最强大脑式」的抽象总结，帮助你形成可迁移的通用模型。&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;&lt;strong&gt;一、总体目标&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;将&lt;strong&gt;本地已构建完成的 Hugo 博客&lt;/strong&gt;部署到公网可访问的服务器&lt;/li&gt;&#xA;&lt;li&gt;使用 &lt;strong&gt;阿里云 ECS + Linux + Nginx&lt;/strong&gt;&lt;/li&gt;&#xA;&lt;li&gt;使用&lt;strong&gt;自己的域名或 IP 访问&lt;/strong&gt;&lt;/li&gt;&#xA;&lt;li&gt;网站样式、JS、CSS 全部正常加载&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;二阶段一服务器租用与初始化&#34;&gt;二、阶段一：服务器租用与初始化&lt;/h2&gt;&#xA;&lt;h3 id=&#34;1-选择云服务器&#34;&gt;1. 选择云服务器&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;云厂商：&lt;strong&gt;阿里云 ECS&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;操作系统：&lt;strong&gt;Ubuntu / CentOS（推荐 Ubuntu 20.04+）&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;实例规格：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;1 核 CPU / 1~2GB 内存即可&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;网络：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;分配公网 IPv4 地址&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;👉 关键点：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;你是&lt;strong&gt;第一次使用 Linux&lt;/strong&gt;，完全没问题，本流程就是为此设计的&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;hr&gt;&#xA;&lt;h3 id=&#34;2-设置登录方式非常关键&#34;&gt;2. 设置登录方式（非常关键）&lt;/h3&gt;&#xA;&lt;p&gt;你遇到的第一个坑：&lt;strong&gt;设置密码按钮点了没反应&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;p&gt;正确认知：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;阿里云 ECS 的登录密码并不是实时生效&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;正确流程：&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;控制台 → 实例 → 更多 → 重置实例密码&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;必须重启实例&lt;/strong&gt;&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;验证方式：&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ssh root@你的服务器IP&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;看到：&lt;/p&gt;</description>
     </item>
   </channel>
