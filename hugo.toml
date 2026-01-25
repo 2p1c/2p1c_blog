@@ -1,6 +1,6 @@
 baseURL = "http://39.106.85.231/"
 languageCode = "en-us"
-title = "2p1c's B1og"
+title = "2p1c's blog"
 theme = "vintage-web-hugo-theme"
 relativeURLs = false
 canonifyURLs = true

@@ -2,38 +2,35 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/posts/</loc>
+    <loc>http://39.106.85.231/posts/</loc>
     <lastmod>2026-01-09T10:55:15+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
+    <loc>http://39.106.85.231/tags/</loc>
     <lastmod>2026-01-09T10:55:15+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/tecs/</loc>
+    <loc>http://39.106.85.231/tags/tecs/</loc>
     <lastmod>2026-01-09T10:55:15+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/the-first-blog-site/</loc>
+    <loc>http://39.106.85.231/posts/the-first-blog-site/</loc>
     <lastmod>2026-01-09T10:55:15+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/my-second-post/</loc>
+    <loc>http://39.106.85.231/posts/my-second-post/</loc>
     <lastmod>2026-01-09T00:40:19+08:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/hello-world/</loc>
+    <loc>http://39.106.85.231/posts/hello-world/</loc>
     <lastmod>2026-01-01T10:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/intro/</loc>
+    <loc>http://39.106.85.231/tags/intro/</loc>
     <lastmod>2026-01-01T10:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/</loc>
+    <loc>http://39.106.85.231/</loc>
     <lastmod>1999-12-31T23:59:59+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/guestbook/</loc>
-    <lastmod>1999-12-20T12:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/about/</loc>
+    <loc>http://39.106.85.231/about/</loc>
     <lastmod>1999-12-01T10:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/</loc>
+    <loc>http://39.106.85.231/categories/</loc>
   </url><url>
-    <loc>http://localhost:1313/series/</loc>
+    <loc>http://39.106.85.231/series/</loc>
   </url>
 </urlset>
