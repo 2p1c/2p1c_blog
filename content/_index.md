@@ -4,20 +4,6 @@ date: 1999-12-31T23:59:59Z
 draft: false
 ---
 
-# ✍️ Write a new post or change JS or CSS
-
-1️⃣ 本地构建
-
-`hugo`
-
-2️⃣ 同步到服务器
-
-`wsl rsync -av --delete public/ root@39.106.85.231:/var/www/html/`
-
-3️⃣ 服务器对齐权限
-
-`sudo /usr/local/bin/fix-web-permissions.sh`
-
 ## 🎉 What's Hot on the Web! 🎉
 
 Greetings, fellow netizen! You've stumbled upon the most tubular corner of the information superhighway. This site is your one-stop destination for all things retro web, Y2K nostalgia, and vintage tech wisdom!

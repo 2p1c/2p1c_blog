@@ -16,12 +16,12 @@
 
 # 1️⃣ 本地构建
 
-hugo
+`hugo`
 
 # 2️⃣ 同步到服务器
 
-rsync -av --delete public/ root@39.106.85.231:/var/www/html/
+`rsync -av --delete public/ root@39.106.85.231:/var/www/html/`
 
 # 3️⃣ 服务器对齐权限
 
-ssh root@39.106.85.231 sudo /usr/local/bin/fix-web-permissions.sh
+`ssh root@39.106.85.231 sudo /usr/local/bin/fix-web-permissions.sh`
