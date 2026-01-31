@@ -6,8 +6,15 @@
     <description>Recent content in Posts on 2p1c&#39;s blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 09 Jan 2026 10:55:15 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 25 Jan 2026 14:14:00 +0800</lastBuildDate>
     <atom:link href="http://39.106.85.231/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Prompting Is a Management Skill</title>
+      <link>http://39.106.85.231/posts/prompting-is-a-management-skill/</link>
+      <pubDate>Sun, 25 Jan 2026 14:14:00 +0800</pubDate>
+      <guid>http://39.106.85.231/posts/prompting-is-a-management-skill/</guid>
+      <description>&lt;p&gt;AI 管理指令（同样适用于人）&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Give direction. Describe the desired style in detail, or reference a relevant persona. Whether you’re briefing Claude or a junior designer, “match the energy of Apple’s product pages—minimal, confident, lots of whitespace” is a much better instruction than “make it pop.”&lt;/li&gt;&#xA;&lt;li&gt;Specify format. Define the rules and required structure of the response. If you want bullet points on a deck, tell the AI.&lt;/li&gt;&#xA;&lt;li&gt;Provide examples. Insert a diverse set of test cases where the task was done correctly. Give the AI an example of a piece of content marketing, or series of tweets that worked well in the past.&lt;/li&gt;&#xA;&lt;li&gt;Evaluate quality. Identify errors and rate responses, testing what drives performance. Just like you give your team feedback, don’t publish AI output without a plan to measure outcomes.&lt;/li&gt;&#xA;&lt;li&gt;Divide labor. Split complex goals into steps chained together. This is exactly how you would approach a product launch—writing down all the steps that need to happen and tracking progress on each.&lt;/li&gt;&#xA;&lt;/ol&gt;</description>
+    </item>
     <item>
       <title>The First Blog Site</title>
       <link>http://39.106.85.231/posts/the-first-blog-site/</link>

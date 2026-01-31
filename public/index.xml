@@ -2,38 +2,45 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Welcome！ on 2p1c&#39;s blog</title>
-    <link>http://localhost:1313/</link>
+    <link>http://39.106.85.231/</link>
     <description>Recent content in Welcome！ on 2p1c&#39;s blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 09 Jan 2026 10:55:15 +0800</lastBuildDate>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 25 Jan 2026 14:14:00 +0800</lastBuildDate>
+    <atom:link href="http://39.106.85.231/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Prompting Is a Management Skill</title>
+      <link>http://39.106.85.231/posts/prompting-is-a-management-skill/</link>
+      <pubDate>Sun, 25 Jan 2026 14:14:00 +0800</pubDate>
+      <guid>http://39.106.85.231/posts/prompting-is-a-management-skill/</guid>
+      <description>&lt;p&gt;AI 管理指令（同样适用于人）&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;Give direction. Describe the desired style in detail, or reference a relevant persona. Whether you’re briefing Claude or a junior designer, “match the energy of Apple’s product pages—minimal, confident, lots of whitespace” is a much better instruction than “make it pop.”&lt;/li&gt;&#xA;&lt;li&gt;Specify format. Define the rules and required structure of the response. If you want bullet points on a deck, tell the AI.&lt;/li&gt;&#xA;&lt;li&gt;Provide examples. Insert a diverse set of test cases where the task was done correctly. Give the AI an example of a piece of content marketing, or series of tweets that worked well in the past.&lt;/li&gt;&#xA;&lt;li&gt;Evaluate quality. Identify errors and rate responses, testing what drives performance. Just like you give your team feedback, don’t publish AI output without a plan to measure outcomes.&lt;/li&gt;&#xA;&lt;li&gt;Divide labor. Split complex goals into steps chained together. This is exactly how you would approach a product launch—writing down all the steps that need to happen and tracking progress on each.&lt;/li&gt;&#xA;&lt;/ol&gt;</description>
+    </item>
     <item>
       <title>The First Blog Site</title>
-      <link>http://localhost:1313/posts/the-first-blog-site/</link>
+      <link>http://39.106.85.231/posts/the-first-blog-site/</link>
       <pubDate>Fri, 09 Jan 2026 10:55:15 +0800</pubDate>
-      <guid>http://localhost:1313/posts/the-first-blog-site/</guid>
+      <guid>http://39.106.85.231/posts/the-first-blog-site/</guid>
       <description>&lt;p&gt;&lt;strong&gt;Hugo 博客从租服务器到正式上线：完整实战总结&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;blockquote&gt;&#xA;&lt;p&gt;本文总结了一次&lt;strong&gt;从零开始&lt;/strong&gt;将本地 Hugo 博客（使用 &lt;code&gt;vintage-web-hugo-theme&lt;/code&gt; 主题）部署到 &lt;strong&gt;阿里云 Linux 服务器&lt;/strong&gt; 并成功上线的完整流程，同时在最后给出「最强大脑式」的抽象总结，帮助你形成可迁移的通用模型。&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;hr&gt;&#xA;&lt;p&gt;&lt;strong&gt;一、总体目标&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;将&lt;strong&gt;本地已构建完成的 Hugo 博客&lt;/strong&gt;部署到公网可访问的服务器&lt;/li&gt;&#xA;&lt;li&gt;使用 &lt;strong&gt;阿里云 ECS + Linux + Nginx&lt;/strong&gt;&lt;/li&gt;&#xA;&lt;li&gt;使用&lt;strong&gt;自己的域名或 IP 访问&lt;/strong&gt;&lt;/li&gt;&#xA;&lt;li&gt;网站样式、JS、CSS 全部正常加载&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;hr&gt;&#xA;&lt;h2 id=&#34;二阶段一服务器租用与初始化&#34;&gt;二、阶段一：服务器租用与初始化&lt;/h2&gt;&#xA;&lt;h3 id=&#34;1-选择云服务器&#34;&gt;1. 选择云服务器&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;云厂商：&lt;strong&gt;阿里云 ECS&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;操作系统：&lt;strong&gt;Ubuntu / CentOS（推荐 Ubuntu 20.04+）&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;实例规格：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;1 核 CPU / 1~2GB 内存即可&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;网络：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;分配公网 IPv4 地址&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;👉 关键点：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;你是&lt;strong&gt;第一次使用 Linux&lt;/strong&gt;，完全没问题，本流程就是为此设计的&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;hr&gt;&#xA;&lt;h3 id=&#34;2-设置登录方式非常关键&#34;&gt;2. 设置登录方式（非常关键）&lt;/h3&gt;&#xA;&lt;p&gt;你遇到的第一个坑：&lt;strong&gt;设置密码按钮点了没反应&lt;/strong&gt;&lt;/p&gt;&#xA;&lt;p&gt;正确认知：&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;阿里云 ECS 的登录密码并不是实时生效&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;正确流程：&lt;/p&gt;&#xA;&lt;ol&gt;&#xA;&lt;li&gt;控制台 → 实例 → 更多 → 重置实例密码&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;必须重启实例&lt;/strong&gt;&lt;/li&gt;&#xA;&lt;/ol&gt;&#xA;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;验证方式：&lt;/p&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;ssh root@你的服务器IP&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;看到：&lt;/p&gt;</description>
     </item>
     <item>
       <title>My Second Post</title>
-      <link>http://localhost:1313/posts/my-second-post/</link>
+      <link>http://39.106.85.231/posts/my-second-post/</link>
       <pubDate>Fri, 09 Jan 2026 00:40:19 +0800</pubDate>
-      <guid>http://localhost:1313/posts/my-second-post/</guid>
+      <guid>http://39.106.85.231/posts/my-second-post/</guid>
       <description>&lt;p&gt;hola, everyone! This is my &lt;strong&gt;second&lt;/strong&gt; blog post.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Hello World</title>
-      <link>http://localhost:1313/posts/hello-world/</link>
+      <link>http://39.106.85.231/posts/hello-world/</link>
       <pubDate>Thu, 01 Jan 2026 10:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/hello-world/</guid>
+      <guid>http://39.106.85.231/posts/hello-world/</guid>
       <description>&lt;p&gt;这是我的第一篇博客文章。&#xA;大家好，欢迎来到我的博客！&lt;/p&gt;</description>
     </item>
     <item>
       <title>About</title>
-      <link>http://localhost:1313/about/</link>
+      <link>http://39.106.85.231/about/</link>
       <pubDate>Wed, 01 Dec 1999 10:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/about/</guid>
+      <guid>http://39.106.85.231/about/</guid>
       <description>&lt;h1 id=&#34;about-retro-web-central-&#34;&gt;About Retro Web Central 🌐&lt;/h1&gt;&#xA;&lt;h2 id=&#34;welcome-to-the-coolest-corner-of-cyberspace&#34;&gt;Welcome to the Coolest Corner of Cyberspace!&lt;/h2&gt;&#xA;&lt;p&gt;&lt;strong&gt;Greetings, fellow netizen!&lt;/strong&gt; You&amp;rsquo;ve discovered the ultimate destination for everything that makes the World Wide Web totally awesome. Retro Web Central has been your trusted guide to the digital frontier since 1999!&lt;/p&gt;&#xA;&lt;h2 id=&#34;our-mission-&#34;&gt;Our Mission 🎯&lt;/h2&gt;&#xA;&lt;p&gt;We&amp;rsquo;re dedicated to bringing you:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;🔥 &lt;strong&gt;The hottest web design trends&lt;/strong&gt; from around the globe&lt;/li&gt;&#xA;&lt;li&gt;💻 &lt;strong&gt;Cutting-edge technology reviews&lt;/strong&gt; and tutorials&lt;/li&gt;&#xA;&lt;li&gt;🎨 &lt;strong&gt;Graphic resources&lt;/strong&gt; to make your site shine&lt;/li&gt;&#xA;&lt;li&gt;🚀 &lt;strong&gt;Y2K preparedness&lt;/strong&gt; information and updates&lt;/li&gt;&#xA;&lt;li&gt;🎮 &lt;strong&gt;Gaming news&lt;/strong&gt; and reviews&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;meet-the-team-&#34;&gt;Meet the Team 👥&lt;/h2&gt;&#xA;&lt;h3 id=&#34;webmaster3000---site-administrator&#34;&gt;WebMaster3000 - Site Administrator&lt;/h3&gt;&#xA;&lt;p&gt;&lt;em&gt;&amp;ldquo;Making the web a more colorful place, one animated GIF at a time!&amp;rdquo;&lt;/em&gt;&lt;/p&gt;</description>
     </item>
   </channel>
