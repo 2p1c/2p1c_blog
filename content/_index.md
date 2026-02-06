@@ -1,57 +1,28 @@
 ---
 title: "Welcome！"
-date: 1999-12-31T23:59:59Z
+date: 2026-02-06
 draft: false
 ---
 
-## 🎉 What's Hot on the Web! 🎉
+## 👋 Hi，这里是 2p1c 的博客
 
-Greetings, fellow netizen! You've stumbled upon the most tubular corner of the information superhighway. This site is your one-stop destination for all things retro web, Y2K nostalgia, and vintage tech wisdom!
+一个热爱折腾技术的人，在这里记录学习与实践的点滴。
 
-### 🔥 Latest Updates 🔥
+### 📌 关于这个站点
 
-- **NEW!** Our guestbook is now live! [Sign it here!](/guestbook/)
-- **COOL!** Check out our [HTML tutorials](/posts/html-basics-1999/)
-- **RAD!** [Geocities vs. Angelfire showdown](/posts/geocities-vs-angelfire/)
-- **AWESOME!** [Best animated GIFs of the decade](/posts/best-animated-gifs/)
+这是一个使用 [Hugo](https://gohugo.io/) 搭建、部署在阿里云上的个人技术博客。主题采用了复古 Web 风格，致敬早期互联网的黄金年代。
 
-### 📱 What's New in Tech?
+### 🔧 主要内容
 
-The new millennium is approaching and technology is advancing at warp speed! We've got the latest scoop on:
+- **建站实践** — 从零搭建博客的完整流程与踩坑记录
+- **AI 工具** — Copilot、Claude Code 等 AI 编程工具的探索与使用
+- **技术笔记** — 边缘计算、服务器运维等学习笔记
 
-- **Internet Explorer 5.0** - The future of browsing is here!
-- **Windows 98 Second Edition** - More stable than ever
-- **56k Modems** - Blazing fast internet connections
-- **MP3 Players** - Music on the go!
+### 🚀 快速导航
 
-### 🎮 Featured Sections
-
-<marquee>**★ Don't forget to bookmark this site! ★**</marquee>
-
-- **[Tech Reviews](/categories/tech/)** - The latest gadgets and software
-- **[Web Design Tips](/categories/web-design/)** - Make your site shine!
-- **[Y2K Preparedness](/categories/y2k/)** - Will your computer survive?
-- **[Gaming Corner](/categories/gaming/)** - From Quake to StarCraft
-
-### 💾 System Requirements
-
-This site is optimized for:
-
-- **Browser:** Netscape Navigator 4.0+ or Internet Explorer 4.0+
-- **Resolution:** 1024x768 (Higher resolutions supported!)
-- **Colors:** 256 colors minimum, True Color recommended
-- **RAM:** 32MB minimum, 64MB recommended
-- **Connection:** 28.8k modem or faster
-
-### 🔗 Cool Links
-
-- [Yahoo! Directory](http://www.yahoo.com) - The best web directory
-- [AltaVista Search](http://www.altavista.com) - Find anything on the web
-- [Hotmail](http://www.hotmail.com) - Free email for everyone!
-- [ICQ](http://www.icq.com) - Chat with friends online
+- 📝 [全部文章](/posts/) — 浏览所有博客文章
+- 👤 [关于我](/about/) — 了解更多
 
 ---
 
-**This site is under construction! 🚧 **
-
-Last updated: Jan ,2026 
+> *Stay curious, keep building.* 🛠️ 
