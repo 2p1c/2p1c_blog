@@ -32,8 +32,8 @@ jobs:
       - name: 配置 SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
           # 将服务器添加到已知主机，避免首次连接的确认提示
           ssh-keyscan -H 39.106.85.231 >> ~/.ssh/known_hosts
 
