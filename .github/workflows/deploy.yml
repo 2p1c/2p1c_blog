@@ -24,9 +24,9 @@ jobs:
           hugo-version: 'latest'
           extended: true     # 使用 extended 版本以支持 SCSS/SASS
 
-      # 3. 构建静态网站
+      # 3. 构建静态网站（不加 --minify，与本地构建保持一致，避免 CSS/JS 哈希值不同）
       - name: 构建网站
-        run: hugo --minify
+        run: hugo
 
       # 4. 配置 SSH 密钥（密钥需提前添加到 GitHub Secrets）
       - name: 配置 SSH
