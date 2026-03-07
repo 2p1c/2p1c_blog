@@ -2,6 +2,9 @@
 // Retro functionality with modern enhancements
 
 document.addEventListener('DOMContentLoaded', function() {
+    // 平滑滚动（等待组件事件，含兜底初始化）
+    setupSmoothScroll();
+
     // Window controls functionality
     initWindowControls();
     
@@ -26,6 +29,156 @@ document.addEventListener('DOMContentLoaded', function() {
     // Theme persistence
     initThemePersistence();
 });
+
+function setupSmoothScroll() {
+    const container = document.querySelector('.smooth-scroll') || document.querySelector('.container');
+
+    // 若页面未提供平滑滚动容器，则跳过
+    if (!container) {
+        console.warn('⚠️ 未找到平滑滚动容器（.smooth-scroll / .container），跳过初始化');
+        return;
+    }
+
+    // 滚动状态
+    let current = 0;
+    let target = 0;
+    let maxScroll = 0;
+    let isInitialized = false;
+    let animationFrameId = null;
+
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
+    // 配置参数
+    const CONFIG = {
+        ease: 0.12,
+        threshold: 0.5,
+        resizeDebounceDelay: 150,
+        initDelay: 100,
+        fallbackInitDelay: 300
+    };
+
+    function clamp(value, min, max) {
+        return Math.max(min, Math.min(value, max));
+    }
+
+    function updateMaxScroll() {
+        const scrollingElement = document.scrollingElement || document.documentElement;
+        const documentHeight = scrollingElement.scrollHeight;
+        const viewportHeight = window.innerHeight;
+        maxScroll = Math.max(0, documentHeight - viewportHeight);
+
+        console.log('📏 更新滚动范围:', {
+            documentHeight,
+            viewportHeight,
+            maxScroll
+        });
+    }
+
+    function smooth() {
+        current += (target - current) * CONFIG.ease;
+        current = clamp(current, 0, maxScroll);
+
+        if (Math.abs(target - current) < CONFIG.threshold) {
+            current = target;
+        }
+
+        container.style.transform = `translate3d(0, ${-current}px, 0)`;
+        animationFrameId = requestAnimationFrame(smooth);
+    }
+
+    function handleWheel(event) {
+        const isInteractive = event.target.closest('input, textarea, select, [contenteditable="true"]');
+        if (isInteractive) {
+            return;
+        }
+
+        event.preventDefault();
+        target += event.deltaY;
+        target = clamp(target, 0, maxScroll);
+    }
+
+    function debounce(fn, delay) {
+        let timer = null;
+        return function(...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
+
+    const handleResize = debounce(() => {
+        updateMaxScroll();
+        target = clamp(target, 0, maxScroll);
+        current = clamp(current, 0, maxScroll);
+    }, CONFIG.resizeDebounceDelay);
+
+    function initSmoothScroll() {
+        if (isInitialized) {
+            console.warn('⚠️ 平滑滚动已初始化，跳过重复初始化');
+            return;
+        }
+
+        // 固定容器 + 隐藏原生滚动条，避免双滚动
+        container.style.willChange = 'transform';
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+
+        // 接管滚动前，吸收浏览器可能存在的原生滚动偏移
+        const nativeScrollY = window.scrollY || window.pageYOffset || 0;
+        window.scrollTo(0, 0);
+
+        current = nativeScrollY;
+        target = nativeScrollY;
+        updateMaxScroll();
+        target = clamp(target, 0, maxScroll);
+        current = clamp(current, 0, maxScroll);
+        smooth();
+
+        window.addEventListener('wheel', handleWheel, { passive: false });
+        window.addEventListener('resize', handleResize);
+
+        isInitialized = true;
+        console.log('✅ 平滑滚动已初始化');
+    }
+
+    function cleanup() {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+
+        window.removeEventListener('wheel', handleWheel);
+        window.removeEventListener('resize', handleResize);
+        window.removeEventListener('componentsLoaded', onComponentsLoaded);
+
+        container.style.transform = '';
+        container.style.willChange = '';
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.style.height = '';
+
+        console.log('🧹 平滑滚动资源已清理');
+    }
+
+    function onComponentsLoaded(event) {
+        console.log('📦 接收到 componentsLoaded 事件');
+        if (event.detail?.loadTime) {
+            console.log(`   组件加载耗时: ${event.detail.loadTime.toFixed(2)}ms`);
+        }
+
+        setTimeout(initSmoothScroll, CONFIG.initDelay);
+    }
+
+    window.addEventListener('componentsLoaded', onComponentsLoaded);
+    window.addEventListener('beforeunload', cleanup);
+
+    // 若未触发组件事件，仍在 DOM ready 后兜底初始化
+    setTimeout(() => {
+        if (!isInitialized) {
+            initSmoothScroll();
+        }
+    }, CONFIG.fallbackInitDelay);
+}
 
 function initPostListItemClick() {
     document.querySelectorAll('.post-list-item').forEach(item => {
