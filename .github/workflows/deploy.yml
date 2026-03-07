@@ -45,4 +45,4 @@ jobs:
       # 6. 修复服务器文件权限
       - name: 修复文件权限
         run: |
-          ssh root@39.106.85.231 "sudo /usr/local/bin/fix-web-permissions.sh"
+          ssh root@39.106.85.231 sudo /usr/local/bin/fix-web-permissions.sh
