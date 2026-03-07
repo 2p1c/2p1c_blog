@@ -10,7 +10,7 @@
 /* Custom Properties for Theme Colors */
 :root {
     --bg-primary: #FAF8F4;
-    --bg-secondary: #E8D5D7;
+    --bg-secondary: #fff2f3;
     --bg-window: #ffffff;
     --border-dark: #b4b4b4;
     --border-light: #FFFFFF;
@@ -496,18 +496,18 @@ a:visited {
     /* 仅保留下边界线，使用实线样式 */
     border-bottom: 1px solid var(--border-dark);
     padding: 8px;
-    margin-bottom: 4px;
+    margin-bottom: 0;
+    transition: background-color 0.3s ease;
 }
 
 .post-list-item:hover {
     background: var(--bg-secondary);
-    .post-list-title {
-        text-decoration: underline;
-        /* 设置下划线的粗细 */
-        text-decoration-thickness: 1px;
-        /* 设置下划线距离文字的偏移距离 */
-        text-underline-offset: 1px;
-    }
+}
+
+.post-list-item:hover .post-list-title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 1px;
 }
 
 .post-list-title {
