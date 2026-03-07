@@ -9,6 +9,7 @@
 
 /* Custom Properties for Theme Colors */
 :root {
+    --ui-scale: 1.25;
     --bg-primary: #FAF8F4;
     --bg-secondary: #fff2f3;
     --bg-window: #ffffff;
@@ -87,9 +88,22 @@
 /* Typography */
 @import url('https://fonts.googleapis.com/css2?family=MS+Sans+Serif:wght@400;700&family=Courier+New:wght@400;700&display=swap');
 
+html {
+    zoom: var(--ui-scale);
+}
+
+@supports not (zoom: 1) {
+    body {
+        transform: scale(var(--ui-scale));
+        transform-origin: top left;
+        width: calc(100% / var(--ui-scale));
+        min-height: calc(100vh / var(--ui-scale));
+    }
+}
+
 body {
     font-family: 'MS Sans Serif', 'Tahoma', 'Arial', sans-serif;
-    font-size: 14px; /* 从 11px 修改为 14px，约增加 125% 的缩放感 */
+    font-size: 11px;
     line-height: 1.4;
     background: var(--bg-primary);
     color: var(--text-primary);
