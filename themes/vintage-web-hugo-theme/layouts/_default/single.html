@@ -2,11 +2,6 @@
 <article class="window">
     <div class="window-header">
         <span class="window-title">{{ .Title }}</span>
-        <div class="window-controls">
-            <span class="window-button">_</span>
-            <span class="window-button">□</span>
-            <span class="window-button">×</span>
-        </div>
     </div>
     <div class="window-content">
         <header class="content-header">
@@ -174,11 +169,6 @@
     <div class="window">
         <div class="window-header">
             <span class="window-title">← Previous Post</span>
-            <div class="window-controls">
-                <span class="window-button">_</span>
-                <span class="window-button">□</span>
-                <span class="window-button">×</span>
-            </div>
         </div>
         <div class="window-content">
             <a href="{{ .Permalink }}" style="text-decoration: none; color: inherit;">
@@ -195,11 +185,6 @@
     <div class="window">
         <div class="window-header">
             <span class="window-title">Next Post →</span>
-            <div class="window-controls">
-                <span class="window-button">_</span>
-                <span class="window-button">□</span>
-                <span class="window-button">×</span>
-            </div>
         </div>
         <div class="window-content">
             <a href="{{ .Permalink }}" style="text-decoration: none; color: inherit;">
@@ -217,11 +202,6 @@
     <div class="window">
         <div class="window-header">
             <span class="window-title">💬 Comments</span>
-            <div class="window-controls">
-                <span class="window-button">_</span>
-                <span class="window-button">□</span>
-                <span class="window-button">×</span>
-            </div>
         </div>
         <div class="window-content">
             {{ template "_internal/disqus.html" . }}

@@ -48,28 +48,29 @@ canonifyURLs = true
 
   # Content Display
   show_featured_sections = false
-  show_stats = true
+  show_stats = false
   show_retro_elements = false
   show_sharing = true
 
   # Footer Options
   show_retro_footer = true
-  show_build_info = false
+  footer_message = "© 2024 2p1c's blog. All rights reserved."
+  show_build_info = true
 
   # Sidebar Options
   show_sidebar_stats = true
   show_retro_sidebar = false
-  sidebar_content = "Welcome to our retro corner of the internet!"
+  # sidebar_content = "Welcome to our retro corner of the internet!"
 
   # Social Links
   [params.social]
-    twitter = "username"
+    twitter = "akidforseven"
     github = "https://github.com/2p1c"
-    linkedin = "username"
+    # linkedin = "username"
     email = "akidforseven@gmail.com"
-    mastodon = "https://mastodon.social/@username"
-    youtube = "channelname"
-    instagram = "username"
+    # mastodon = "https://mastodon.social/@username"
+    # youtube = "channelname"
+    # instagram = "username"
     phonenumber = "18617715681"
 
   # SEO and Analytics

@@ -9,20 +9,23 @@
 
 /* Custom Properties for Theme Colors */
 :root {
-    --bg-primary: #F5E6E8;
+    --bg-primary: #FAF8F4;
     --bg-secondary: #E8D5D7;
-    --bg-window: #F0F0F0;
-    --border-dark: #808080;
+    --bg-window: #ffffff;
+    --border-dark: #b4b4b4;
     --border-light: #FFFFFF;
     --text-primary: #000000;
     --text-secondary: #333333;
     --text-link: #0000EE;
-    --text-visited: #551A8B;
+    --text-visited: #696969;
     --accent-teal: #008080;
     --accent-pink: #FFB6C1;
     --button-face: #C0C0C0;
     --highlight: #316AC5;
     --shadow: rgba(0, 0, 0, 0.3);
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
 }
 
 /* Dark Mode Variables */
@@ -104,13 +107,13 @@ a:visited {
 /* Classic Window Styling */
 .window {
     background: var(--bg-window);
-    border-radius: 0;
+    border-radius: var(--radius-md);
     box-shadow: 2px 2px 4px var(--shadow);
     margin: 1rem 0;
 }
 
 .window-header {
-    background: linear-gradient(90deg, #316AC5 0%, #4A7BC8 100%);
+    background: linear-gradient(180deg, #6EA9FF 0%, #4B87E2 45%, #2F67C4 100%);
     color: white;
     padding: 2px 4px;
     font-weight: bold;
@@ -118,11 +121,24 @@ a:visited {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid var(--border-dark);
-    border-top: 1px solid rgba(255,255,255,0.5);
-    border-left: 1px solid rgba(255,255,255,0.3);
-    border-right: 1px solid rgba(0,0,0,0.3);
-    text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
+    border-top: 1px solid #CFE3FF;
+    border-left: 1px solid #AFCBFA;
+    border-right: 1px solid #1F4F9F;
+    border-bottom: 1px solid #173F85;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 0 rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.window-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 45%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
 }
 
 .window-title {
@@ -136,15 +152,19 @@ a:visited {
 }
 
 .window-button {
-    width: 16px;
-    height: 14px;
+    width: 14px;
+    height: 12px;
     background: var(--button-face);
     border: 1px outset var(--button-face);
     font-size: 8px;
-    text-align: center;
-    line-height: 12px;
+    /* 使用 Flexbox 实现中心对齐 */
+    display: flex;
+    align-items: center;     /* 垂直居中 */
+    justify-content: center;  /* 水平居中 */
+    text-shadow: none;
     cursor: pointer;
     font-weight: bold;
+    border-radius: var(--radius-md);
 }
 
 .window-button:active {
@@ -154,6 +174,8 @@ a:visited {
 .window-content {
     padding: 8px;
     background: var(--bg-window);
+    border-bottom-left-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
 }
 
 /* Layout Structure */
@@ -168,20 +190,21 @@ a:visited {
 .site-title {
     font-size: 18px;
     font-weight: bold;
-    color: var(--text-primary);
+    color: #000000;
     text-decoration: none;
     padding: 4px 8px;
 }
 
 .site-title:hover {
-    background: var(--highlight);
-    color: white;
+    /* background: var(--highlight); */
+    color: rgb(0, 0, 0);
 }
 
 /* Navigation */
 .site-nav {
     background: var(--button-face);
     border: 1px outset var(--button-face);
+    border-radius: var(--radius-md);
     padding: 4px;
     margin: 8px 0;
 }
@@ -206,6 +229,7 @@ a:visited {
     text-decoration: none;
     font-size: 11px;
     font-weight: normal;
+    border-radius: var(--radius-sm);
 }
 
 .nav-link:hover,
@@ -336,6 +360,7 @@ a:visited {
     background: var(--bg-secondary);
     border: 1px inset var(--border-dark);
     padding: 1px 3px;
+    border-radius: var(--radius-sm);
 }
 
 .content pre {
@@ -348,6 +373,7 @@ a:visited {
     font-family: 'Courier New', monospace;
     font-size: 10px;
     line-height: 1.2;
+    border-radius: var(--radius-md);
 }
 
 .content pre code {
@@ -364,6 +390,7 @@ a:visited {
     padding: 8px;
     margin: 8px 0;
     font-style: italic;
+    border-radius: var(--radius-md);
 }
 
 /* Tables */
@@ -373,6 +400,8 @@ a:visited {
     width: 100%;
     background: var(--bg-window);
     border: 2px outset var(--border-dark);
+    border-radius: var(--radius-md);
+    overflow: hidden;
 }
 
 .content th,
@@ -394,6 +423,7 @@ a:visited {
     height: auto;
     border: 1px solid var(--border-dark);
     margin: 4px 0;
+    border-radius: var(--radius-sm);
 }
 
 .content figure {
@@ -420,6 +450,7 @@ a:visited {
     background: var(--bg-window);
     border: 1px outset var(--border-dark);
     padding: 4px;
+    border-radius: var(--radius-md);
 }
 
 /* Video and Audio */
@@ -442,6 +473,7 @@ a:visited {
     color: var(--text-primary);
     display: inline-block;
     margin: 2px;
+    border-radius: var(--radius-sm);
 }
 
 .btn:hover {
@@ -461,13 +493,21 @@ a:visited {
 
 .post-list-item {
     background: var(--bg-window);
-    border: 1px outset var(--border-dark);
+    /* 仅保留下边界线，使用实线样式 */
+    border-bottom: 1px solid var(--border-dark);
     padding: 8px;
     margin-bottom: 4px;
 }
 
 .post-list-item:hover {
     background: var(--bg-secondary);
+    .post-list-title {
+        text-decoration: underline;
+        /* 设置下划线的粗细 */
+        text-decoration-thickness: 1px;
+        /* 设置下划线距离文字的偏移距离 */
+        text-underline-offset: 1px;
+    }
 }
 
 .post-list-title {
@@ -481,7 +521,11 @@ a:visited {
 }
 
 .post-list-title a:hover {
-    color: var(--text-link);
+    text-decoration: underline;
+    /* 设置下划线的粗细 */
+    text-decoration-thickness: 1px;
+    /* 设置下划线距离文字的偏移距离 */
+    text-underline-offset: 1px;
 }
 
 .post-list-meta {
@@ -511,6 +555,7 @@ a:visited {
     color: var(--text-primary);
     text-decoration: none;
     font-size: 10px;
+    border-radius: var(--radius-sm);
 }
 
 .pagination a:hover {
@@ -527,13 +572,21 @@ a:visited {
 /* Sidebar */
 .sidebar {
     background: var(--bg-window);
-    border: 2px inset var(--border-dark);
-    padding: 8px;
+    /* border: 2px inset var(--border-dark); */
+    padding: 0;
     margin: 8px 0;
+    border-radius: var(--radius-md);
+    box-shadow: 2px 2px 4px var(--shadow);
+    overflow: hidden;
+}
+
+.sidebar-content {
+    padding: 8px;
 }
 
 .sidebar-section {
     margin-bottom: 12px;
+    border-radius: var(--radius-sm);
 }
 
 .sidebar-title {
@@ -639,6 +692,7 @@ a:visited {
     border: 1px inset var(--button-face);
     background: var(--bg-window);
     font-size: 9px;
+    border-radius: var(--radius-sm);
 }
 
 /* Adjust main content to account for status bar */
@@ -652,6 +706,7 @@ body {
     border: 2px outset var(--button-face);
     padding: 4px;
     margin-bottom: 8px;
+    border-radius: var(--radius-md);
 }
 
 .address-bar {
@@ -661,6 +716,7 @@ body {
     margin: 2px 0;
     font-family: 'Courier New', monospace;
     font-size: 10px;
+    border-radius: var(--radius-sm);
 }
 
 .toolbar {
@@ -675,6 +731,7 @@ body {
     border: 1px outset var(--button-face);
     font-size: 9px;
     cursor: pointer;
+    border-radius: var(--radius-sm);
 }
 
 .toolbar-button:hover {
@@ -702,6 +759,7 @@ body {
     padding: 4px;
     overflow: hidden;
     white-space: nowrap;
+    border-radius: var(--radius-sm);
 }
 
 .marquee-text {
@@ -728,6 +786,7 @@ body {
     font-size: 9px;
     text-decoration: none;
     color: var(--text-primary);
+    border-radius: var(--radius-sm);
 }
 
 .tag-cloud a:hover {
@@ -748,6 +807,7 @@ body {
     padding: 2px 4px;
     background: var(--button-face);
     border: 1px outset var(--button-face);
+    border-radius: var(--radius-sm);
 }
 
 .archive-month {
@@ -771,6 +831,7 @@ body {
     border: 2px inset var(--border-dark);
     padding: 8px;
     margin-top: 16px;
+    border-radius: var(--radius-md);
 }
 
 .comments-title {

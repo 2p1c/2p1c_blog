@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initWindowControls();
     
     // Retro effects
-    initRetroEffects();
+    // initRetroEffects();
     
     // Keyboard navigation
     initKeyboardNavigation();
@@ -19,10 +19,33 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Search functionality
     initSearch();
+
+    // Clickable post list cards
+    initPostListItemClick();
     
     // Theme persistence
     initThemePersistence();
 });
+
+function initPostListItemClick() {
+    document.querySelectorAll('.post-list-item').forEach(item => {
+        item.addEventListener('click', function(event) {
+            const interactiveElement = event.target.closest('a, button, input, textarea, select, label, summary, [role="button"]');
+            if (interactiveElement) {
+                return;
+            }
+
+            const titleLink = this.querySelector('.post-list-title a');
+            if (!titleLink || !titleLink.href) {
+                return;
+            }
+
+            window.location.href = titleLink.href;
+        });
+
+        item.style.cursor = 'pointer';
+    });
+}
 
 // Window controls (minimize, maximize, close)
 function initWindowControls() {
@@ -119,12 +142,12 @@ function initRetroEffects() {
     }
     
     // Add retro cursor trail effect (optional)
-    if (localStorage.getItem('retroCursor') === 'true') {
-        initCursorTrail();
-    }
+    // if (localStorage.getItem('retroCursor') === 'true') {
+    //     initCursorTrail();
+    // }
     
     // Konami code easter egg
-    initKonamiCode();
+    // initKonamiCode();
 }
 
 function initCursorTrail() {

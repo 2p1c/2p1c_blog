@@ -74,14 +74,9 @@
         
         <!-- Site Header -->
         <header class="site-header">
-            <div class="window">
+            <!-- <div class="window">
                 <div class="window-header">
                     <span class="window-title">{{ .Site.Title }}</span>
-                    <div class="window-controls">
-                        <span class="window-button">_</span>
-                        <span class="window-button">□</span>
-                        <span class="window-button">×</span>
-                    </div>
                 </div>
                 <div class="window-content">
                     <a href="{{ .Site.BaseURL }}" class="site-title">{{ .Site.Title }}</a>
@@ -89,7 +84,7 @@
                     <div class="site-tagline">{{ . }}</div>
                     {{ end }}
                 </div>
-            </div>
+            </div> -->
         </header>
         
         <!-- Main Content -->
@@ -100,7 +95,12 @@
         <!-- Sidebar -->
         {{ if .Site.Params.show_sidebar }}
         <aside class="sidebar">
-            {{ partial "sidebar.html" . }}
+            <div class="window-header">
+                <span class="window-title">📌 Sidebar</span>
+            </div>
+            <div class="sidebar-content">
+                {{ partial "sidebar.html" . }}
+            </div>
         </aside>
         {{ end }}
         

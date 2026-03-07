@@ -1,12 +1,10 @@
 {{ define "main" }}
 <div class="window">
     <div class="window-header">
-        <span class="window-title">Welcome to {{ .Site.Title }}</span>
-        <div class="window-controls">
-            <span class="window-button">_</span>
-            <span class="window-button">□</span>
-            <span class="window-button">×</span>
-        </div>
+        <span class="window-title">
+            <!-- 将站点标题包裹在指向首页的超链接中 -->
+            <a href="{{ .Site.BaseURL | relLangURL }}" style="text-decoration: none; color: inherit;">{{ .Site.Title }}</a>
+        </span>
     </div>
     <div class="window-content">
         {{ with .Content }}
@@ -31,11 +29,6 @@
 <div class="window">
     <div class="window-header">
         <span class="window-title">Recent Posts</span>
-        <div class="window-controls">
-            <span class="window-button">_</span>
-            <span class="window-button">□</span>
-            <span class="window-button">×</span>
-        </div>
     </div>
     <div class="window-content">
         <ul class="post-list">
@@ -75,11 +68,6 @@
 <div class="window">
     <div class="window-header">
         <span class="window-title">Featured Content</span>
-        <div class="window-controls">
-            <span class="window-button">_</span>
-            <span class="window-button">□</span>
-            <span class="window-button">×</span>
-        </div>
     </div>
     <div class="window-content">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
@@ -132,11 +120,6 @@
 <div class="window">
     <div class="window-header">
         <span class="window-title">Site Statistics</span>
-        <div class="window-controls">
-            <span class="window-button">_</span>
-            <span class="window-button">□</span>
-            <span class="window-button">×</span>
-        </div>
     </div>
     <div class="window-content">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; text-align: center;">
@@ -166,11 +149,6 @@
 <div class="window">
     <div class="window-header">
         <span class="window-title">✨ Retro Web Experience ✨</span>
-        <div class="window-controls">
-            <span class="window-button">_</span>
-            <span class="window-button">□</span>
-            <span class="window-button">×</span>
-        </div>
     </div>
     <div class="window-content">
         <div style="text-align: center; padding: 8px;">
