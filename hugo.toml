@@ -76,5 +76,5 @@ canonifyURLs = true
   google_analytics = "G-XXXXXXXXXX"
 
   # Repository (for edit links)
-  repo_url = "https://github.com/2p1c/my-vintage-blog"
+  repo_url = "https://github.com/2p1c/2p1c_blog"
   edit_page = true

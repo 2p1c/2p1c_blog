@@ -26,7 +26,7 @@
 }
 
 /* Dark Mode Variables */
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
     :root {
         --bg-primary: #2C1B47;
         --bg-secondary: #3D2B5F;

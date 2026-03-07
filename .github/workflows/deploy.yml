@@ -10,11 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉取代码（含主题子模块）
+      # 1. 拉取代码
       - name: 拉取代码
         uses: actions/checkout@v4
         with:
-          submodules: true   # 如果主题是 git submodule 则需要此项
           fetch-depth: 0
 
       # 2. 安装 Hugo（版本必须与本地一致，否则 CSS/JS 哈希会不同导致样式丢失）
