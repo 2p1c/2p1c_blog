@@ -39,6 +39,20 @@ function setupSmoothScroll() {
         return;
     }
 
+    // iOS/触屏设备和减少动画偏好下使用原生滚动，避免 wheel-only 方案导致无法滚动
+    const hasTouchSupport = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isCoarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+
+    if (hasTouchSupport || isCoarsePointer || prefersReducedMotion) {
+        console.log('ℹ️ 检测到移动端/触控或减少动画偏好，启用原生滚动');
+        container.style.transform = '';
+        container.style.willChange = '';
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+        return;
+    }
+
     // 滚动状态
     let current = 0;
     let target = 0;
@@ -162,7 +176,7 @@ function setupSmoothScroll() {
 
     function onComponentsLoaded(event) {
         console.log('📦 接收到 componentsLoaded 事件');
-        if (event.detail?.loadTime) {
+        if (event.detail && typeof event.detail.loadTime === 'number') {
             console.log(`   组件加载耗时: ${event.detail.loadTime.toFixed(2)}ms`);
         }
 
