@@ -79,3 +79,7 @@ canonifyURLs = true
   # Repository (for edit links)
   repo_url = "https://github.com/2p1c/2p1c_blog"
   edit_page = true
+
+  [params.ai_chat]
+    enabled = true
+    api_base = "/api/chat"

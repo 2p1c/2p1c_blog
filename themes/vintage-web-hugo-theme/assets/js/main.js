@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Theme persistence
     initThemePersistence();
+
+    // AI chat widget
+    initAiChatWidget();
 });
 
 function setupSmoothScroll() {
@@ -592,6 +595,213 @@ function initThemePersistence() {
             });
         }
     });
+}
+
+function initAiChatWidget() {
+    const widget = document.getElementById('ai-chat-widget');
+    if (!widget) {
+        return;
+    }
+
+    const toggle = document.getElementById('ai-chat-toggle');
+    const panel = document.getElementById('ai-chat-panel');
+    const form = document.getElementById('ai-chat-form');
+    const input = document.getElementById('ai-chat-input');
+    const messages = document.getElementById('ai-chat-messages');
+    const apiBase = resolveAiChatApiBase(widget.dataset.apiBase);
+
+    if (!toggle || !panel || !form || !input || !messages) {
+        return;
+    }
+
+    let isStreaming = false;
+
+    toggle.addEventListener('click', () => {
+        const willOpen = panel.hidden;
+        panel.hidden = !willOpen;
+        toggle.setAttribute('aria-expanded', String(willOpen));
+        if (willOpen) {
+            input.focus();
+        }
+    });
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (isStreaming) {
+            return;
+        }
+
+        const text = input.value.trim();
+        if (!text) {
+            return;
+        }
+
+        if (text === '/clear') {
+            await clearSession(apiBase, messages);
+            input.value = '';
+            return;
+        }
+
+        const sessionId = getOrCreateSessionId();
+        appendMessage(messages, 'user', text);
+        input.value = '';
+
+        const assistantNode = appendMessage(messages, 'assistant', '');
+
+        isStreaming = true;
+        input.disabled = true;
+
+        try {
+            await streamReply(apiBase, sessionId, text, assistantNode);
+        } catch (error) {
+            assistantNode.textContent = `请求失败：${error.message}`;
+        } finally {
+            isStreaming = false;
+            input.disabled = false;
+            input.focus();
+        }
+    });
+}
+
+function resolveAiChatApiBase(rawApiBase) {
+    const configuredApiBase = (rawApiBase || '/api/chat').trim().replace(/\/+$/, '');
+    const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+    if (isLocalHost && configuredApiBase === '/api/chat') {
+        return 'http://127.0.0.1:4310/chat';
+    }
+
+    return configuredApiBase || '/api/chat';
+}
+
+function getOrCreateSessionId() {
+    const storageKey = 'ai_chat_session_id';
+    let sessionId = localStorage.getItem(storageKey);
+
+    if (!sessionId) {
+        sessionId = `sess-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        localStorage.setItem(storageKey, sessionId);
+    }
+
+    return sessionId;
+}
+
+function appendMessage(container, role, content) {
+    const row = document.createElement('div');
+    row.className = `ai-chat-msg ai-chat-msg-${role}`;
+
+    const label = document.createElement('strong');
+    label.className = 'ai-chat-msg-label';
+    label.textContent = role === 'user' ? 'You' : 'AI';
+
+    const body = document.createElement('div');
+    body.className = 'ai-chat-msg-body';
+    body.textContent = content;
+
+    row.appendChild(label);
+    row.appendChild(body);
+    container.appendChild(row);
+
+    container.scrollTop = container.scrollHeight;
+    return body;
+}
+
+async function clearSession(apiBase, messagesContainer) {
+    const sessionId = getOrCreateSessionId();
+
+    const response = await fetch(`${apiBase}/clear`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId })
+    });
+
+    if (!response.ok) {
+        throw new Error('clear 请求失败');
+    }
+
+    messagesContainer.innerHTML = '';
+    appendMessage(messagesContainer, 'assistant', '上下文已清空，你可以开始新对话。');
+}
+
+async function streamReply(apiBase, sessionId, userMessage, assistantNode) {
+    const response = await fetch(`${apiBase}/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            session_id: sessionId,
+            message: userMessage
+        })
+    });
+
+    if (!response.ok || !response.body) {
+        throw new Error(`HTTP ${response.status}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+            break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+
+        while (true) {
+            const boundary = buffer.indexOf('\n\n');
+            if (boundary === -1) {
+                break;
+            }
+
+            const rawEvent = buffer.slice(0, boundary);
+            buffer = buffer.slice(boundary + 2);
+
+            const parsed = parseSseEvent(rawEvent);
+            if (!parsed) {
+                continue;
+            }
+
+            if (parsed.event === 'token' && parsed.data?.delta) {
+                assistantNode.textContent += parsed.data.delta;
+            }
+
+            if (parsed.event === 'error') {
+                throw new Error(parsed.data?.message || 'stream error');
+            }
+        }
+    }
+}
+
+function parseSseEvent(rawEvent) {
+    const lines = rawEvent.split('\n');
+    let eventName = 'message';
+    let dataText = '';
+
+    for (const line of lines) {
+        if (line.startsWith('event:')) {
+            eventName = line.slice(6).trim();
+        }
+
+        if (line.startsWith('data:')) {
+            dataText += line.slice(5).trim();
+        }
+    }
+
+    if (!dataText) {
+        return null;
+    }
+
+    try {
+        return {
+            event: eventName,
+            data: JSON.parse(dataText)
+        };
+    } catch (error) {
+        return null;
+    }
 }
 
 // Utility functions
