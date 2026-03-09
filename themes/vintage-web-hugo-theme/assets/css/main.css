@@ -16,6 +16,7 @@
     --window-header-gradient-start: #6EA9FF;
     --window-header-gradient-mid: #4B87E2;
     --window-header-gradient-end: #2F67C4;
+    --window-header-color: #FFFFFF;
     --border-dark: #b4b4b4;
     --border-light: #FFFFFF;
     --text-primary: #000000;
@@ -280,7 +281,7 @@ a:visited {
 
 .page-title,
 .post-title {
-    font-size: 16px;
+    font-size: 22px;
     font-weight: bold;
     color: var(--text-primary);
     margin-bottom: 4px;
@@ -305,13 +306,15 @@ a:visited {
     margin: 16px 0 8px 0;
     font-weight: bold;
 }
-
-.content h1 { font-size: 18px; }
-.content h2 { font-size: 16px; }
-.content h3 { font-size: 14px; }
-.content h4 { font-size: 12px; }
-.content h5 { font-size: 11px; }
-.content h6 { font-size: 10px; }
+.content{
+    font-size: 12px;
+}
+.content h1 { font-size: 20px; }
+.content h2 { font-size: 18px; }
+.content h3 { font-size: 16px; }
+.content h4 { font-size: 14px; }
+.content h5 { font-size: 13px; }
+.content h6 { font-size: 12px; }
 
 .content p {
     margin: 8px 0;
