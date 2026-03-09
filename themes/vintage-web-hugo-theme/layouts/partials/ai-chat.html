@@ -1,0 +1,22 @@
+{{ $enabled := .Site.Params.ai_chat.enabled | default true }}
+{{ if $enabled }}
+<div id="ai-chat-widget" class="ai-chat" data-api-base="{{ .Site.Params.ai_chat.api_base | default "/api/chat" }}">
+  <button id="ai-chat-toggle" class="ai-chat-toggle" type="button" aria-expanded="false" aria-controls="ai-chat-panel">
+    Ask AI
+  </button>
+
+  <section id="ai-chat-panel" class="ai-chat-panel" aria-label="AI Chat" hidden>
+    <header class="ai-chat-header">
+      <strong>AI Assistant</strong>
+      <span class="ai-chat-tip">输入 <code>/clear</code> 清空上下文</span>
+    </header>
+
+    <div id="ai-chat-messages" class="ai-chat-messages" aria-live="polite"></div>
+
+    <form id="ai-chat-form" class="ai-chat-form">
+      <input id="ai-chat-input" type="text" placeholder="输入问题，回车发送" maxlength="2000" autocomplete="off" />
+      <button id="ai-chat-send" type="submit">Send</button>
+    </form>
+  </section>
+</div>
+{{ end }}
