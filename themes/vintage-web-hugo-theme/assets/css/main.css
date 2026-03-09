@@ -13,6 +13,9 @@
     --bg-primary: #FAF8F4;
     --bg-secondary: #fff2f3;
     --bg-window: #ffffff;
+    --window-header-gradient-start: #6EA9FF;
+    --window-header-gradient-mid: #4B87E2;
+    --window-header-gradient-end: #2F67C4;
     --border-dark: #b4b4b4;
     --border-light: #FFFFFF;
     --text-primary: #000000;
@@ -30,11 +33,15 @@
 }
 
 /* Dark Mode Variables */
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
     :root {
-        --bg-primary: #2C1B47;
-        --bg-secondary: #3D2B5F;
-        --bg-window: #1E1E1E;
+        --bg-primary: #14120b;
+        --bg-secondary: #14120b;
+        --bg-window: #1b1913;
+        --window-header-gradient-start: #d9d9d9;
+        --window-header-gradient-mid: #a6a6a6;
+        --window-header-gradient-end: #6f6f6f;
+        --window-header-color: #000000;
         --border-dark: #555555;
         --border-light: #777777;
         --text-primary: #E0E0E0;
@@ -54,6 +61,9 @@
     --bg-primary: #2C1B47;
     --bg-secondary: #3D2B5F;
     --bg-window: #1E1E1E;
+    --window-header-gradient-start: #d9d9d9;
+    --window-header-gradient-mid: #a6a6a6;
+    --window-header-gradient-end: #6f6f6f;
     --border-dark: #555555;
     --border-light: #777777;
     --text-primary: #E0E0E0;
@@ -127,11 +137,11 @@ a:visited {
 }
 
 .window-header {
-    background: linear-gradient(180deg, #6EA9FF 0%, #4B87E2 45%, #2F67C4 100%);
-    color: white;
+    background: linear-gradient(180deg, var(--window-header-gradient-start) 0%, var(--window-header-gradient-mid) 45%, var(--window-header-gradient-end) 100%);
+    color: var(--window-header-color);
     padding: 2px 4px;
     font-weight: bold;
-    font-size: 11px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -516,7 +526,7 @@ a:visited {
 
 /* 增大列表项标题字体 */
 .post-list-title {
-    font-size: 14px; /* 从默认大小增大到 14px */
+    font-size: 17px; /* 从默认大小增大到 16px */
     font-weight: bold;
     margin-bottom: 6px;
 }
@@ -550,13 +560,13 @@ a:visited {
 }
 
 .post-list-meta {
-    font-size: 10px;
+    font-size: 13px;
     color: var(--text-secondary);
 }
 
 .post-list-summary {
     margin-top: 4px;
-    font-size: 10px;
+    font-size: 13px;
     line-height: 1.3;
 }
 

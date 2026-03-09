@@ -39,13 +39,23 @@ function setupSmoothScroll() {
         return;
     }
 
-    // iOS/触屏设备和减少动画偏好下使用原生滚动，避免 wheel-only 方案导致无法滚动
+    // 仅在手机/平板或减少动画偏好下回退到原生滚动，触屏笔记本仍允许平滑滚动
     const hasTouchSupport = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isCoarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    const userAgent = navigator.userAgent || '';
+    const isTouchMac = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+    const isMobileOrTabletUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet|Silk|Kindle/i.test(userAgent);
+    const isMobileOrTablet = isMobileOrTabletUserAgent || isTouchMac || (hasTouchSupport && isCoarsePointer);
 
-    if (hasTouchSupport || isCoarsePointer || prefersReducedMotion) {
-        console.log('ℹ️ 检测到移动端/触控或减少动画偏好，启用原生滚动');
+    if (isMobileOrTablet || prefersReducedMotion) {
+        console.log('ℹ️ 检测到手机/平板或减少动画偏好，启用原生滚动', {
+            isMobileOrTablet,
+            prefersReducedMotion,
+            hasTouchSupport,
+            isCoarsePointer,
+            maxTouchPoints: navigator.maxTouchPoints || 0
+        });
         container.style.transform = '';
         container.style.willChange = '';
         document.body.style.overflow = '';
