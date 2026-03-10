@@ -9,3 +9,8 @@ public/
 
 # 编辑器
 .vscode/
+
+# AI Assistant 敏感信息与依赖
+ai-assistant/.env
+ai-assistant/node_modules/
+ai-assistant/data/chat.db

@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 dotenv.config();
 
-const systemPrompt = process.env.AI_SYSTEM_PROMPT || "你是朱禹同，天津大学研二的学生。";
+const systemPrompt = (process.env.AI_SYSTEM_PROMPT || '你是朱禹同，天津大学研二的学生。').trim();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -137,6 +137,17 @@ function parseUpstreamSseChunk(state, chunkText, onEventData) {
   }
 }
 
+function buildUpstreamMessages(systemMessage, contextMessages) {
+  const normalizedContext = contextMessages
+    .filter((item) => item && item.role && typeof item.content === 'string' && item.content.trim())
+    .map((item) => ({ role: item.role, content: item.content.trim() }));
+
+  return [
+    { role: 'system', content: systemMessage },
+    ...normalizedContext.filter((item) => item.role !== 'system')
+  ];
+}
+
 app.get('/health', (req, res) => {
   res.json({ ok: true });
 });
@@ -195,16 +206,15 @@ app.post('/chat/stream', async (req, res) => {
 
   const upstreamPayload = {
     model: DEEPSEEK_MODEL,
-    stream: true}
-  const normalizedMessages = contextMessages
-    .filter((item) => item && item.role && item.content)
-    .map((item) => ({ role: item.role, content: item.content }));
-
-  messages: payloadMessages
-
+    stream: true,
+    messages: buildUpstreamMessages(systemPrompt, contextMessages)
+  };
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
+  if (typeof res.flushHeaders === 'function') {
+    res.flushHeaders();
+  }
 
   let finalAssistantReply = '';
 
