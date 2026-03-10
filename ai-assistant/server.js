@@ -6,8 +6,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 dotenv.config();
-
-const systemPrompt = (process.env.AI_SYSTEM_PROMPT || '你是朱禹同，天津大学研二的学生。').trim();
+const promptPath = process.env.PROMPT_FILE;
+const systemPrompt = fs.readFileSync(promptPath, "utf8").trim();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
