@@ -11,8 +11,7 @@ public/
 .vscode/
 
 # 本地配置目录
-config/
-
+ai-assistant/config/
 # AI Assistant 敏感信息与依赖
 ai-assistant/.env
 ai-assistant/node_modules/

@@ -1,32 +1,17 @@
-# AI Chat 后端上线六步指南
+# 后端上线指南
 
 > 目标：在服务器上稳定运行 `ai-assistant`，并通过 Nginx 提供 `/api/chat/*` 访问。
 
-## Step 1：拉取代码并安装依赖
+## 拉取代码
 
-```bash
-# 进入部署根目录（如果不存在则创建）
-mkdir -p /var/www
-cd /var/www
-
-# ⚠️ 注意 0：Node.js 版本要求
-# 此项目使用了可选链（?.）特性，需要 Node.js v14 及以上版本（推荐 v18+ 或 v20+）
-# 检查版本命令：node -v
-# 如果版本太低，请使用以下命令升级：
-# curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-# sudo apt-get install -y nodejs
-
-# ⚠️ 注意 1：克隆前需确保服务器已添加 GitHub SSH 公钥
-# ...
 ```
-
 cd /var/www/2p1c_blog
 git pull
 cd ai-assistant
 npm ci
 ```
 
----***
+---\*\*\*
 
 ## Step 2：配置环境变量
 
@@ -39,12 +24,14 @@ cp .env.example .env
 
 ```dotenv
 PORT=4310
-DEEPSEEK_API_KEY=你的真实密钥
+DEEPSEEK_API_KEY=your_deepseek_api_key
 DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
 DEEPSEEK_MODEL=deepseek-chat
 DB_PATH=./data/chat.db
 MAX_MESSAGE_CHARS=2000
 MAX_CONTEXT_MESSAGES=20
+AI_SYSTEM_PROMPT=your_ai_system_prompt
+PROMPT_FILE=./config/system-prompt.txt
 ```
 
 ---
@@ -66,8 +53,11 @@ curl -sS http://127.0.0.1:4310/health
 预期返回：
 
 ```json
-{"ok":true}
+{ "ok": true }
 ```
+
+在终端修改后可以使用`pm2 restart ai-assistant`查看服务是否正常重启。
+使用`pm2 logs ai-assistant --lines 200`查看日志输出，确认没有异常。
 
 ---
 
@@ -134,7 +124,7 @@ curl -sS https://你的域名/api/health
 预期返回：
 
 ```json
-{"ok":true}
+{ "ok": true }
 ```
 
 ### 6.2 前端联调
@@ -156,6 +146,7 @@ lsof -nP -iTCP:4310 -sTCP:LISTEN
 ### 2) 看不到流式输出
 
 优先检查 Nginx 是否已配置：
+
 - `proxy_buffering off;`
 - `chunked_transfer_encoding off;`
 
