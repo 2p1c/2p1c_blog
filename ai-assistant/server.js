@@ -6,10 +6,31 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 dotenv.config();
-const promptPath = process.env.PROMPT_FILE;
-const systemPrompt = fs.readFileSync(promptPath, "utf8").trim();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+function loadSystemPrompt() {
+  const promptFile = process.env.PROMPT_FILE;
+  const fallbackPrompt = (process.env.AI_SYSTEM_PROMPT || '你是朱禹同，天津大学研二的学生。').trim();
+
+  if (!promptFile) {
+    return fallbackPrompt;
+  }
+
+  const resolvedPromptPath = path.isAbsolute(promptFile)
+    ? promptFile
+    : path.resolve(__dirname, promptFile);
+
+  try {
+    const filePrompt = fs.readFileSync(resolvedPromptPath, 'utf8').trim();
+    return filePrompt || fallbackPrompt;
+  } catch (error) {
+    console.warn(`failed to load prompt file at ${resolvedPromptPath}, fallback to AI_SYSTEM_PROMPT`, error);
+    return fallbackPrompt;
+  }
+}
+
+const systemPrompt = loadSystemPrompt();
 
 const PORT = Number(process.env.PORT || 3001);
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || '';
@@ -155,7 +176,7 @@ app.get('/health', (req, res) => {
 app.post('/chat/clear', (req, res) => {
   const { session_id: sessionId } = req.body || {};
 
-if (!isValidSessionId(sessionId)) {
+  if (!isValidSessionId(sessionId)) {
     return sendJsonError(res, 400, 'BAD_REQUEST', 'session_id is required and must be a valid string');
   }
 
@@ -170,12 +191,7 @@ if (!isValidSessionId(sessionId)) {
 
 app.post('/chat/stream', async (req, res) => {
   const { session_id: rawSessionId, message } = req.body || {};
-  const recentMessages = history.slice(-10);
-  const payloadMessages = [
-    { role: "system", content: systemPrompt },
-    ...recentMessages,
-    { role: "user", content: userInput }
-  ];
+
   if (!isValidSessionId(rawSessionId)) {
     return sendJsonError(res, 400, 'BAD_REQUEST', 'session_id is required and must be a valid string');
   }
