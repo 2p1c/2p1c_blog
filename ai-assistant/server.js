@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 dotenv.config();
 
+const systemPrompt = process.env.AI_SYSTEM_PROMPT || "你是朱禹同，天津大学研二的学生。";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -143,7 +144,7 @@ app.get('/health', (req, res) => {
 app.post('/chat/clear', (req, res) => {
   const { session_id: sessionId } = req.body || {};
 
-  if (!isValidSessionId(sessionId)) {
+if (!isValidSessionId(sessionId)) {
     return sendJsonError(res, 400, 'BAD_REQUEST', 'session_id is required and must be a valid string');
   }
 
@@ -158,7 +159,12 @@ app.post('/chat/clear', (req, res) => {
 
 app.post('/chat/stream', async (req, res) => {
   const { session_id: rawSessionId, message } = req.body || {};
-
+  const recentMessages = history.slice(-10);
+  const payloadMessages = [
+    { role: "system", content: systemPrompt },
+    ...recentMessages,
+    { role: "user", content: userInput }
+  ];
   if (!isValidSessionId(rawSessionId)) {
     return sendJsonError(res, 400, 'BAD_REQUEST', 'session_id is required and must be a valid string');
   }
@@ -189,9 +195,12 @@ app.post('/chat/stream', async (req, res) => {
 
   const upstreamPayload = {
     model: DEEPSEEK_MODEL,
-    stream: true,
-    messages: contextMessages.map((item) => ({ role: item.role, content: item.content }))
-  };
+    stream: true}
+  const normalizedMessages = contextMessages
+    .filter((item) => item && item.role && item.content)
+    .map((item) => ({ role: item.role, content: item.content }));
+
+  messages: payloadMessages
 
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache');
