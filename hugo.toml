@@ -1,4 +1,4 @@
-baseURL = "http://39.106.85.231/"
+baseURL = "https://2p1c.life/"
 languageCode = "en-us"
 title = "2p1c's blog"
 theme = "vintage-web-hugo-theme"
@@ -48,33 +48,38 @@ canonifyURLs = true
 
   # Content Display
   show_featured_sections = false
-  show_stats = true
+  show_stats = false
   show_retro_elements = false
   show_sharing = true
 
   # Footer Options
   show_retro_footer = true
-  show_build_info = false
+  footer_message = "© 2024 2p1c's blog. All rights reserved."
+  show_build_info = true
 
   # Sidebar Options
   show_sidebar_stats = true
   show_retro_sidebar = false
-  sidebar_content = "Welcome to our retro corner of the internet!"
+  # sidebar_content = "Welcome to our retro corner of the internet!"
 
   # Social Links
   [params.social]
-    twitter = "username"
+    twitter = "akidforseven"
     github = "https://github.com/2p1c"
-    linkedin = "username"
+    # linkedin = "username"
     email = "akidforseven@gmail.com"
-    mastodon = "https://mastodon.social/@username"
-    youtube = "channelname"
-    instagram = "username"
+    # mastodon = "https://mastodon.social/@username"
+    # youtube = "channelname"
+    # instagram = "username"
     phonenumber = "18617715681"
 
   # SEO and Analytics
   google_analytics = "G-XXXXXXXXXX"
 
   # Repository (for edit links)
-  repo_url = "https://github.com/2p1c/my-vintage-blog"
+  repo_url = "https://github.com/2p1c/2p1c_blog"
   edit_page = true
+
+  [params.ai_chat]
+    enabled = true
+    api_base = "/api/chat"

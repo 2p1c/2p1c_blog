@@ -1,0 +1,8 @@
+<footer class="site-footer">
+    © 2024 2p1c's blog. All rights reserved.
+    {{ if .Site.Params.show_build_info }}
+    <div style="margin-top: 8px; text-align: center; font-size: 8px; color: var(--text-secondary);">
+       Last updated on {{ now.Format "Jan 2, 2006 15:04:05 MST" }}
+    </div>
+    {{ end }}
+</footer>

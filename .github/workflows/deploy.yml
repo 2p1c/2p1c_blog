@@ -10,23 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉取代码（含主题子模块）
+      # 1. 拉取代码
       - name: 拉取代码
         uses: actions/checkout@v4
         with:
-          submodules: true   # 如果主题是 git submodule 则需要此项
           fetch-depth: 0
 
-      # 2. 安装 Hugo
+      # 2. 安装 Hugo（版本必须与本地一致，否则 CSS/JS 哈希会不同导致样式丢失）
       - name: 安装 Hugo
         uses: peaceiris/actions-hugo@v3
         with:
-          hugo-version: 'latest'
+          hugo-version: '0.154.3'
           extended: true     # 使用 extended 版本以支持 SCSS/SASS
 
-      # 3. 构建静态网站
+      # 3. 构建静态网站（不加 --minify，与本地构建保持一致，避免 CSS/JS 哈希值不同）
       - name: 构建网站
-        run: hugo --minify
+        run: |
+          rm -rf public
+          hugo
 
       # 4. 配置 SSH 密钥（密钥需提前添加到 GitHub Secrets）
       - name: 配置 SSH

@@ -5,6 +5,7 @@ title = 'Copilot Api to Claude Code'
 
 tags = ['tecs']
 description = '使用 copilot-api 转发为 claude api 从而使用 Claude code 编程'
+summary = '将copilot-api 转发为claude api从而能够免费使用Claude code Agent'
 
 +++
 

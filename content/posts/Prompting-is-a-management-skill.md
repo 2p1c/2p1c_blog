@@ -2,6 +2,7 @@
 date = '2026-01-25T14:14:00+08:00'
 draft = false
 title = 'Prompting Is a Management Skill'
+summary = 'AI 管理指令（同样适用于人）'
 +++
 
 AI 管理指令（同样适用于人）

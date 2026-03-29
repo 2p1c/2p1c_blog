@@ -4,6 +4,7 @@ draft = false
 title = 'The First Blog Site'
 tags = ['tecs']
 description = 'The detail procedure of creating the first blog site.'
+summary = '搭建网站的详细过程'
 +++
 
 **Hugo 博客从租服务器到正式上线：完整实战总结**

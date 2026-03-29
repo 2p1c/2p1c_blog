@@ -1,0 +1,23 @@
+{
+  "skill_name": "new-blog-post",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我创建一篇新博文，主题是用 Hugo 和 GitHub Actions 自动部署博客。请补全 title、description、tags 和 categories。",
+      "expected_output": "应触发 new-blog-post 技能，推断技术类标题与摘要，生成 2 到 5 个相关 tags，以及 1 到 2 个合适的 categories，并创建 content/posts 下的新文章文件。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "新建一篇文章，想写我这周折腾 VPS 和 Nginx 的过程，标题你也可以帮我想。",
+      "expected_output": "应触发 new-blog-post 技能，在信息不完整时先做适度推断；如果标题不够明确，可以简短追问，然后创建文章并写入 front matter。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "帮我写一个 Hugo 博客草稿，内容是我对提示词工程的理解，中文标题，顺便把 description、tags、categories 也生成。",
+      "expected_output": "应触发 new-blog-post 技能，识别中文标题偏好，推断与提示词工程相关的 description、tags、categories，并创建博客草稿文件。",
+      "files": []
+    }
+  ]
+}
