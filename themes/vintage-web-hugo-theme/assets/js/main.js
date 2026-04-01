@@ -610,11 +610,10 @@ function initAiChatWidget() {
     const input = document.getElementById('ai-chat-input');
     const messages = document.getElementById('ai-chat-messages');
     const headerAvatar = document.getElementById('ai-chat-header-avatar');
-    const closeBtn = document.getElementById('ai-chat-close');
     const clearBtn = document.getElementById('ai-chat-clear');
     const apiBase = resolveAiChatApiBase(widget.dataset.apiBase);
 
-    if (!toggle || !panel || !form || !input || !messages || !toggleImage || !headerAvatar || !closeBtn || !clearBtn) {
+    if (!toggle || !panel || !form || !input || !messages || !toggleImage || !headerAvatar || !clearBtn) {
         return;
     }
 
@@ -644,9 +643,29 @@ function initAiChatWidget() {
         if (!isOpen) {
             return;
         }
+
         const maxHeight = Math.floor(window.innerHeight * 0.5);
         const minHeight = 190;
-        const desired = messages.scrollHeight + 132;
+        const header = panel.querySelector('.ai-chat-header');
+        const composer = panel.querySelector('.ai-chat-form');
+        const headerHeight = header ? header.offsetHeight : 42;
+        const composerHeight = composer ? composer.offsetHeight : 50;
+
+        const style = window.getComputedStyle(messages);
+        const paddingTop = parseFloat(style.paddingTop || '0') || 0;
+        const paddingBottom = parseFloat(style.paddingBottom || '0') || 0;
+        const gap = parseFloat(style.rowGap || style.gap || '0') || 0;
+
+        const children = Array.from(messages.children);
+        let contentHeight = 0;
+        for (const child of children) {
+            contentHeight += child.offsetHeight;
+        }
+        if (children.length > 1) {
+            contentHeight += gap * (children.length - 1);
+        }
+
+        const desired = headerHeight + composerHeight + paddingTop + paddingBottom + contentHeight;
         const finalHeight = Math.max(minHeight, Math.min(desired, maxHeight));
         panel.style.height = String(finalHeight) + 'px';
     }
@@ -696,10 +715,6 @@ function initAiChatWidget() {
             return;
         }
         togglePanel();
-    });
-
-    closeBtn.addEventListener('click', () => {
-        closePanel();
     });
 
     panel.addEventListener('mouseleave', () => {
@@ -861,7 +876,7 @@ async function clearSession(apiBase, messagesContainer, aiAvatar, userAvatar) {
     }
 
     messagesContainer.innerHTML = '';
-    appendMessage(messagesContainer, 'assistant', '上下文已清空，你可以开始新对话。', aiAvatar, userAvatar, false);
+    appendMessage(messagesContainer, 'assistant', 'new session！', aiAvatar, userAvatar, false);
 }
 
 async function streamReply(apiBase, sessionId, userMessage, assistantNode) {
