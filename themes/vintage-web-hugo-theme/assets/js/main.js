@@ -604,24 +604,117 @@ function initAiChatWidget() {
     }
 
     const toggle = document.getElementById('ai-chat-toggle');
+    const toggleImage = document.getElementById('ai-chat-toggle-image');
     const panel = document.getElementById('ai-chat-panel');
     const form = document.getElementById('ai-chat-form');
     const input = document.getElementById('ai-chat-input');
     const messages = document.getElementById('ai-chat-messages');
+    const headerAvatar = document.getElementById('ai-chat-header-avatar');
+    const closeBtn = document.getElementById('ai-chat-close');
+    const clearBtn = document.getElementById('ai-chat-clear');
     const apiBase = resolveAiChatApiBase(widget.dataset.apiBase);
 
-    if (!toggle || !panel || !form || !input || !messages) {
+    if (!toggle || !panel || !form || !input || !messages || !toggleImage || !headerAvatar || !closeBtn || !clearBtn) {
         return;
     }
 
-    let isStreaming = false;
+    const launcherImage = (widget.dataset.launcherImage || '').trim() || getDefaultLauncherImage();
+    const aiAvatar = (widget.dataset.aiAvatar || '').trim() || getDefaultAiAvatar();
+    const userAvatar = getDefaultUserAvatar();
+    const supportsHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-    toggle.addEventListener('click', () => {
-        const willOpen = panel.hidden;
-        panel.hidden = !willOpen;
-        toggle.setAttribute('aria-expanded', String(willOpen));
-        if (willOpen) {
+    toggleImage.src = launcherImage;
+    headerAvatar.src = aiAvatar;
+
+    let isStreaming = false;
+    let isOpen = false;
+    let currentAssistantRow = null;
+    let hoverReady = false;
+    let suppressHoverUntil = 0;
+
+    window.addEventListener('pointermove', () => {
+        hoverReady = true;
+    }, { once: true });
+
+    function canOpenByHover() {
+        return supportsHover && hoverReady && Date.now() >= suppressHoverUntil;
+    }
+
+    function adjustPanelHeight() {
+        if (!isOpen) {
+            return;
+        }
+        const maxHeight = Math.floor(window.innerHeight * 0.5);
+        const minHeight = 190;
+        const desired = messages.scrollHeight + 132;
+        const finalHeight = Math.max(minHeight, Math.min(desired, maxHeight));
+        panel.style.height = String(finalHeight) + 'px';
+    }
+
+    function openPanel() {
+        if (isOpen) {
+            return;
+        }
+        isOpen = true;
+        panel.hidden = false;
+        toggle.setAttribute('aria-expanded', 'true');
+        adjustPanelHeight();
+        setTimeout(() => {
             input.focus();
+            messages.scrollTop = messages.scrollHeight;
+        }, 80);
+    }
+
+    function closePanel() {
+        if (!isOpen) {
+            return;
+        }
+        isOpen = false;
+        panel.hidden = true;
+        toggle.setAttribute('aria-expanded', 'false');
+        suppressHoverUntil = Date.now() + 260;
+    }
+
+    function togglePanel() {
+        if (isOpen) {
+            closePanel();
+        } else {
+            openPanel();
+        }
+    }
+
+    toggle.addEventListener('mouseenter', () => {
+        if (canOpenByHover()) {
+            openPanel();
+        }
+    });
+
+    toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+        if (supportsHover) {
+            openPanel();
+            return;
+        }
+        togglePanel();
+    });
+
+    closeBtn.addEventListener('click', () => {
+        closePanel();
+    });
+
+    panel.addEventListener('mouseleave', () => {
+        if (!supportsHover || !isOpen) {
+            return;
+        }
+        closePanel();
+    });
+
+    clearBtn.addEventListener('click', async () => {
+        try {
+            await clearSession(apiBase, messages, aiAvatar, userAvatar);
+            adjustPanelHeight();
+        } catch (error) {
+            appendMessage(messages, 'assistant', '清空失败：' + error.message, aiAvatar, userAvatar);
         }
     });
 
@@ -638,30 +731,50 @@ function initAiChatWidget() {
         }
 
         if (text === '/clear') {
-            await clearSession(apiBase, messages);
+            await clearSession(apiBase, messages, aiAvatar, userAvatar);
             input.value = '';
+            adjustPanelHeight();
             return;
         }
 
         const sessionId = getOrCreateSessionId();
-        appendMessage(messages, 'user', text);
+        appendMessage(messages, 'user', text, aiAvatar, userAvatar);
         input.value = '';
 
-        const assistantNode = appendMessage(messages, 'assistant', '');
+        const assistantState = appendMessage(messages, 'assistant', '', aiAvatar, userAvatar, true);
+        const assistantNode = assistantState.body;
+        currentAssistantRow = assistantState.row;
 
         isStreaming = true;
         input.disabled = true;
+        clearBtn.disabled = true;
+        const sendBtn = document.getElementById('ai-chat-send');
+        if (sendBtn) {
+            sendBtn.disabled = true;
+        }
+        adjustPanelHeight();
 
         try {
             await streamReply(apiBase, sessionId, text, assistantNode);
         } catch (error) {
-            assistantNode.textContent = `请求失败：${error.message}`;
+            assistantNode.textContent = '请求失败：' + error.message;
         } finally {
             isStreaming = false;
             input.disabled = false;
+            clearBtn.disabled = false;
+            if (sendBtn) {
+                sendBtn.disabled = false;
+            }
+            if (currentAssistantRow) {
+                currentAssistantRow.classList.remove('is-thinking');
+            }
+            currentAssistantRow = null;
+            adjustPanelHeight();
             input.focus();
         }
     });
+
+    window.addEventListener('resize', adjustPanelHeight);
 }
 
 function resolveAiChatApiBase(rawApiBase) {
@@ -687,9 +800,35 @@ function getOrCreateSessionId() {
     return sessionId;
 }
 
-function appendMessage(container, role, content) {
+function toSvgDataUri(svgText) {
+    return 'data:image/svg+xml,' + encodeURIComponent(svgText);
+}
+
+function getDefaultLauncherImage() {
+    return toSvgDataUri('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f766e"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs><rect width="96" height="96" rx="48" fill="url(#g)"/><circle cx="35" cy="40" r="8" fill="#fff"/><circle cx="61" cy="40" r="8" fill="#fff"/><path d="M30 61c5 8 12 11 18 11s13-3 18-11" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none"/></svg>');
+}
+
+function getDefaultAiAvatar() {
+    return toSvgDataUri('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10b981"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs><rect width="64" height="64" rx="32" fill="url(#a)"/><circle cx="23" cy="26" r="6" fill="#fff"/><circle cx="41" cy="26" r="6" fill="#fff"/><rect x="18" y="39" width="28" height="7" rx="3.5" fill="#fff"/></svg>');
+}
+
+function getDefaultUserAvatar() {
+    return toSvgDataUri('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="#334155"/><circle cx="32" cy="24" r="10" fill="#fff"/><path d="M15 50c3-9 11-14 17-14s14 5 17 14" fill="#fff"/></svg>');
+}
+
+function appendMessage(container, role, content, aiAvatar, userAvatar, isThinking) {
     const row = document.createElement('div');
     row.className = `ai-chat-msg ai-chat-msg-${role}`;
+    if (role === 'assistant' && isThinking) {
+        row.classList.add('is-thinking');
+    }
+
+    const avatar = document.createElement('div');
+    avatar.className = 'ai-chat-msg-avatar';
+    const avatarImage = document.createElement('img');
+    avatarImage.alt = role === 'user' ? 'User avatar' : 'AI avatar';
+    avatarImage.src = role === 'user' ? userAvatar : aiAvatar;
+    avatar.appendChild(avatarImage);
 
     const label = document.createElement('strong');
     label.className = 'ai-chat-msg-label';
@@ -699,15 +838,16 @@ function appendMessage(container, role, content) {
     body.className = 'ai-chat-msg-body';
     body.textContent = content;
 
+    row.appendChild(avatar);
     row.appendChild(label);
     row.appendChild(body);
     container.appendChild(row);
 
     container.scrollTop = container.scrollHeight;
-    return body;
+    return { row, body };
 }
 
-async function clearSession(apiBase, messagesContainer) {
+async function clearSession(apiBase, messagesContainer, aiAvatar, userAvatar) {
     const sessionId = getOrCreateSessionId();
 
     const response = await fetch(`${apiBase}/clear`, {
@@ -721,7 +861,7 @@ async function clearSession(apiBase, messagesContainer) {
     }
 
     messagesContainer.innerHTML = '';
-    appendMessage(messagesContainer, 'assistant', '上下文已清空，你可以开始新对话。');
+    appendMessage(messagesContainer, 'assistant', '上下文已清空，你可以开始新对话。', aiAvatar, userAvatar, false);
 }
 
 async function streamReply(apiBase, sessionId, userMessage, assistantNode) {

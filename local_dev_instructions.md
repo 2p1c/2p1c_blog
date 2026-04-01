@@ -36,13 +36,32 @@ DB_PATH=./data/chat.db
 MAX_MESSAGE_CHARS=2000
 MAX_CONTEXT_MESSAGES=20
 AI_SYSTEM_PROMPT=your_ai_system_prompt
-PROMPT_FILE=./config/system-prompt.txt
+PROMPT_FILE=./config/system_prompt.txt
+CHAT_LAUNCHER_IMAGE_URL=
+AI_AVATAR_URL=
 ```
 
 如果你希望从文件加载系统提示词，可以额外配置：
 
 ```dotenv
-PROMPT_FILE=./config/system-prompt.txt
+PROMPT_FILE=./config/system_prompt.txt
+```
+
+如果你希望在 `/chat` 独立页面里自定义图标，也可以配置：
+
+```dotenv
+CHAT_LAUNCHER_IMAGE_URL=https://your-domain.com/launcher.png
+AI_AVATAR_URL=https://your-domain.com/ai-avatar.png
+```
+
+如果你希望在 Hugo 全站悬浮入口里自定义图标，请修改 `hugo.toml`：
+
+```toml
+[params.ai_chat]
+  enabled = true
+  api_base = "/api/chat"
+  launcher_image = "https://your-domain.com/launcher.png"
+  ai_avatar = "https://your-domain.com/ai-avatar.png"
 ```
 
 ## Step 3：启动后端服务
@@ -78,7 +97,7 @@ hugo server -D
 后端启动后，先检查健康接口：
 
 ```bash
-curl -sS http://127.0.0.1:3001/health
+curl -sS http://127.0.0.1:4310/health
 ```
 
 预期返回：
@@ -87,7 +106,7 @@ curl -sS http://127.0.0.1:3001/health
 {"ok":true}
 ```
 
-如果你把 `PORT` 改成了别的值，请把上面的 `3001` 改成对应端口。
+如果你把 `PORT` 改成了别的值，请把上面的 `4310` 改成对应端口。
 
 然后在浏览器打开：
 
@@ -97,9 +116,13 @@ http://localhost:1313
 
 打开页面里的 AI 入口后，测试以下场景：
 
-1. 发送普通消息，确认可以流式返回。
-2. 发送多轮对话，确认上下文生效。
-3. 输入 `/clear`，确认会话上下文被清空。
+1. 页面右下角先显示图片图标（launcher）。
+2. 桌面端鼠标悬停图标可展开对话框；移出对话框后自动收起。
+3. 移动端点击图标可展开/收起。
+4. 发送普通消息，确认可以流式返回。
+5. 多轮对话确认上下文生效。
+6. 点击“清空”或输入 `/clear`，确认会话上下文被清空。
+7. AI 回复生成中头像应有动态动画。
 
 ## Step 6：常见调试命令
 
@@ -126,9 +149,15 @@ npm run dev
 如果你想直接测流式接口，可以执行：
 
 ```bash
-curl -N -X POST http://127.0.0.1:3001/chat/stream \
+curl -N -X POST http://127.0.0.1:4310/chat/stream \
   -H "Content-Type: application/json" \
   -d '{"session_id":"test12345","message":"你好"}'
+```
+
+如果你想单独查看后端内置 UI 页面，也可以直接打开：
+
+```text
+http://127.0.0.1:4310/chat
 ```
 
 ## 常见问题
@@ -154,11 +183,11 @@ curl -N -X POST http://127.0.0.1:3001/chat/stream \
 Windows PowerShell：
 
 ```powershell
-Get-NetTCPConnection -LocalPort 3001
+Get-NetTCPConnection -LocalPort 4310
 ```
 
 Linux/macOS：
 
 ```bash
-lsof -nP -iTCP:3001 -sTCP:LISTEN
+lsof -nP -iTCP:4310 -sTCP:LISTEN
 ```
