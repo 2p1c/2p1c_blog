@@ -29,6 +29,18 @@ npm run dev
 hugo server -D
 ```
 
+### Skills Management
+```bash
+# Install all enabled skills from configuration
+./install-skills.sh
+
+# Check installed skills
+npx skills list
+
+# Add individual skill
+npx skills add source/skill-name -a claude-code
+```
+
 ### Production Deployment
 ```bash
 # Backend deployment on server
@@ -65,28 +77,38 @@ pm2 restart ai-assistant            # Restart service
 
 ### Frontend (Hugo)
 - **Configuration**: `hugo.toml` - Main site configuration with theme settings and AI chat integration
-- **Theme**: `vintage-web-hugo-theme` in `themes/` directory
+- **Theme**: `vintage-web-hugo-theme` in `themes/` directory with retro aesthetic
+- **Theme Customization**: AI chat integration via `[params.ai_chat]` settings and custom partials
 - **Content Structure**:
-  - `content/posts/` - Blog posts in Markdown
+  - `content/posts/` - Blog posts in Markdown (Chinese and English)
   - `content/_index.md` - Homepage content
   - `content/about.md` - About page
 - **Static Assets**: `static/` directory for images and other assets
+- **Build Output**: `public/` directory (generated, not version controlled)
 
 ### Backend (AI Assistant)
 - **Entry Point**: `ai-assistant/server.js` - Express server with AI chat endpoints
-- **Key Features**:
-  - Streaming chat responses via `/chat/stream`
+- **Key Endpoints**:
+  - `POST /chat/stream` - Streaming chat responses via Server-Sent Events (SSE)
+  - `POST /chat/clear` - Clear session history 
+  - `GET /health` - Health check endpoint
+  - `GET /chat` - Built-in chat UI for testing
+- **Features**:
   - Session management with SQLite database
   - CORS configuration for local development
   - System prompt loading from file or environment variable
+  - Message length and context limits
 - **Database**: SQLite database for chat history (configurable path)
 - **API Integration**: DeepSeek API for AI responses
 
 ### Configuration Files
 - `ai-assistant/.env` - Backend environment configuration (API keys, database path, etc.)
-- `hugo.toml` - Hugo site configuration and theme parameters
+- `ai-assistant/.env.example` - Template for environment configuration
+- `hugo.toml` - Hugo site configuration and theme parameters with AI chat integration settings
 - `skills.config.json` - Claude Code agent skills configuration
-- `.github/copilot-instructions.md` - Development guidelines and coding standards
+- `.claude/settings.local.json` - Local Claude Code settings and preferences
+- `.github/copilot-instructions.md` - Development guidelines and coding standards (Chinese comments preferred)
+- `install-skills.sh` - Automated skills installation script
 
 ## Key Integration Points
 
@@ -135,9 +157,11 @@ location /api/chat/stream {
 - Images should be placed in `static/` directory
 
 ### Skill Management
-- Custom Claude Code skills are configured in `skills.config.json`
-- Available skills include git-commit, skill-creator, find-skills, git-flow-branch-creator
-- Skills are managed via the `/install-skills.sh` script
+- **Configuration**: `skills.config.json` - Defines available Claude Code agent skills and their sources
+- **Installation**: `./install-skills.sh` - Automated script to install all enabled skills from config
+- **Skills Directory**: `.agents/skills/` - Contains installed skill definitions and documentation
+- **Available Skills**: git-commit, skill-creator, find-skills, git-flow-branch-creator, and various Lark/Feishu skills
+- **Claude Code Settings**: `.claude/settings.local.json` - Local Claude Code configuration
 
 ## Testing and Validation
 
