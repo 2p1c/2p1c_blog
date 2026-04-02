@@ -1157,7 +1157,9 @@ body {
     }
 
     .ai-chat-panel {
+        right: 0;
         width: calc(100vw - 16px);
+        max-width: calc(100vw - 16px);
         bottom: 76px;
     }
 }
