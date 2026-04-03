@@ -5,6 +5,7 @@
 - `POST /chat/stream`：SSE 流式输出
 - `POST /chat/clear`：清空会话上下文
 - `GET /health`：健康检查
+- `GET /chat`：内置聊天 UI（悬浮图标 + 展开对话窗）
 
 ## 快速启动
 
@@ -15,11 +16,14 @@ npm install
 npm run start
 ```
 
-默认端口：`3001`
+默认端口：`.env` 内 `PORT`（示例为 `4310`）
 
 ## 环境变量
 
 见 `.env.example`。
+
+- `CHAT_LAUNCHER_IMAGE_URL`：自定义右下角启动图标 URL（可留空）
+- `AI_AVATAR_URL`：自定义 AI 头像 URL（可留空）
 
 ## 说明
 
@@ -51,11 +55,12 @@ location /api/health {
 ## 联调检查
 
 1. 启动服务：`npm run start`
-2. 检查健康接口：`curl -sS http://127.0.0.1:3001/health`
+2. 检查健康接口：`curl -sS http://127.0.0.1:4310/health`
+3. 打开聊天 UI：`http://127.0.0.1:4310/chat`
 3. 检查清空接口：
 
 ```bash
-curl -sS -X POST http://127.0.0.1:3001/chat/clear \
+curl -sS -X POST http://127.0.0.1:4310/chat/clear \
   -H 'Content-Type: application/json' \
   -d '{"session_id":"test-session-1234"}'
 ```

@@ -1,0 +1,18 @@
+flowchart LR
+    A[Hikvision Camera SDK] --> B[Video Stream Decode]
+    B --> C[Frame Sampling]
+    C --> D[Preprocess Resize and Normalize]
+    D --> E[Stage A Gauge Detection]
+    E --> F[Main Gauge Selection]
+    F --> G[ROI Crop]
+    G --> H[Stage B ROI Detector]
+    H --> I[Postprocess]
+    I --> J[Annotated Image]
+    I --> K[Structured Result JSON]
+    I --> L[Pose Hint]
+    J --> M[ROS Visualizer]
+    K --> N[ROS Topic Service]
+    L --> N
+    H -. future .-> O[Geometry Readout]
+    O -. future .-> P[OCR Range Parsing]
+    P -. future .-> Q[Numeric Gauge Reading]

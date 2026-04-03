@@ -83,3 +83,5 @@ canonifyURLs = true
   [params.ai_chat]
     enabled = true
     api_base = "/api/chat"
+    launcher_image = "/images/chat-launcher.png"
+    ai_avatar = "/images/ai-avatar.jpg"

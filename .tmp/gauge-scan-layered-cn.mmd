@@ -1,0 +1,57 @@
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+flowchart TB
+    IN["输入<br/>公开仪表数据集<br/>海康真实场景视频流"]:::side
+
+    subgraph A["训练层"]
+        direction TB
+        A0["公开数据 + 真实样本"]:::node
+        A1["数据清洗与增强"]:::node
+        A2["一级模型训练<br/>表盘检测"]:::node
+        A3["二级模型训练<br/>ROI关键部件检测"]:::node
+        A4["模型权重产出"]:::node
+        A0 --> A1
+        A1 --> A2
+        A1 --> A3
+        A2 --> A4
+        A3 --> A4
+    end
+
+    subgraph B["推理层"]
+        direction TB
+        B1["海康SDK取流"]:::node
+        B2["码流解码与分帧"]:::node
+        B3["帧采样与预处理"]:::node
+        B4["一级检测<br/>表盘定位"]:::node
+        B5["主表盘筛选"]:::node
+        B6["ROI裁剪"]:::node
+        B7["二级检测<br/>center / min / max / tip"]:::node
+        B8["后处理"]:::node
+        B1 --> B2 --> B3 --> B4 --> B5 --> B6 --> B7 --> B8
+    end
+
+    subgraph C["部署层"]
+        direction TB
+        C1["ROS1机器人服务器"]:::node
+        C2["hik_stream_node"]:::node
+        C3["gauge_detector_node"]:::node
+        C4["gauge_visualizer_node"]:::node
+        C1 --> C2 --> C3 --> C4
+    end
+
+    OUT["输出<br/>/gauge/detections<br/>/gauge/image_annotated<br/>/gauge/pose_hint<br/>run_once 服务"]:::side
+    FUT["未来扩展<br/>OCR量程识别<br/>几何读数计算<br/>机器人自动靠近与对准"]:::future
+
+    IN --> A0
+    A4 --> B4
+    B8 --> C3
+    C4 --> OUT
+    C3 --> OUT
+    B8 --> FUT
+
+    style A fill:#fffdf2,stroke:#7b6f2a,stroke-width:3px,stroke-dasharray: 10 6,color:#1f2329
+    style B fill:#f4f8ff,stroke:#2f5fb3,stroke-width:3px,stroke-dasharray: 10 6,color:#1f2329
+    style C fill:#f4fff8,stroke:#2d8a57,stroke-width:3px,stroke-dasharray: 10 6,color:#1f2329
+
+    classDef node fill:#ffffff,stroke:#4e83fd,stroke-width:2px,color:#1f2329;
+    classDef side fill:#fff1f0,stroke:#d84b3c,stroke-width:2px,color:#1f2329;
+    classDef future fill:#f8f0ff,stroke:#8a4fd8,stroke-width:2px,color:#1f2329;

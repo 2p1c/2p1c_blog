@@ -39,7 +39,7 @@
     
     <!-- Styles -->
     {{ $css := resources.Get "css/main.css" | resources.Minify | resources.Fingerprint }}
-    <link rel="stylesheet" href="{{ $css.Permalink }}">
+    <link rel="stylesheet" href="{{ $css.RelPermalink }}">
     
     <!-- Custom CSS -->
     {{ with .Site.Params.custom_css }}
@@ -130,7 +130,7 @@
     {{ $js := resources.Get "js/main.js" }}
     {{ if $js }}
     {{ $js := $js | resources.Minify | resources.Fingerprint }}
-    <script src="{{ $js.Permalink }}"></script>
+    <script src="{{ $js.RelPermalink }}"></script>
     {{ end }}
     
     <!-- Custom JavaScript -->
