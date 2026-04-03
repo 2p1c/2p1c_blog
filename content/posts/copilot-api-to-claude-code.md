@@ -1,6 +1,6 @@
 +++
 date = '2026-01-30T20:10:08+08:00'
-draft = true
+draft = false
 title = 'Copilot Api to Claude Code'
 
 tags = ['tecs']
