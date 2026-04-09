@@ -16,3 +16,4 @@ ai-assistant/config/
 ai-assistant/.env
 ai-assistant/node_modules/
 ai-assistant/data/chat.db
+.claude/

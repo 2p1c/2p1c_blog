@@ -6,7 +6,7 @@
     <div class="window-content">
         <header class="content-header">
             <h1 class="post-title">{{ .Title }}</h1>
-            
+
             {{ if .IsPage }}
             <div class="post-meta">
                 <span class="post-meta-item">
@@ -23,36 +23,36 @@
                 <span class="post-meta-item">
                     📊 {{ .WordCount }} words
                 </span>
-                
+
                 {{ with .Params.author }}
                 <span class="post-meta-item">
                     👤 By {{ . }}
                 </span>
                 {{ end }}
-                
+
                 {{ with .Params.categories }}
                 <span class="post-meta-item">
-                    📂 Categories: 
+                    📂 Categories:
                     {{ range $i, $cat := . }}
                         {{ if $i }}, {{ end }}
                         <a href="{{ "/categories/" | relLangURL }}{{ $cat | urlize }}">{{ $cat }}</a>
                     {{ end }}
                 </span>
                 {{ end }}
-                
+
                 {{ with .Params.tags }}
                 <span class="post-meta-item">
-                    🏷️ Tags: 
+                    🏷️ Tags:
                     {{ range $i, $tag := . }}
                         {{ if $i }}, {{ end }}
                         <a href="{{ "/tags/" | relLangURL }}{{ $tag | urlize }}">{{ $tag }}</a>
                     {{ end }}
                 </span>
                 {{ end }}
-                
+
                 {{ with .Params.series }}
                 <span class="post-meta-item">
-                    📚 Part of series: 
+                    📚 Part of series:
                     {{ range $i, $ser := . }}
                         {{ if $i }}, {{ end }}
                         <a href="{{ "/series/" | relLangURL }}{{ $ser | urlize }}">{{ $ser }}</a>
@@ -61,97 +61,117 @@
                 {{ end }}
             </div>
             {{ end }}
-            
+
             {{ with .Description }}
-            <div class="post-description" style="font-style: italic; margin: 8px 0; padding: 4px 8px; background: var(--bg-secondary); border: 1px inset var(--border-dark);">
+            <div class="post-description">
                 {{ . }}
             </div>
             {{ end }}
-            
+
             {{ with .Params.featured_image }}
-            <div class="featured-image" style="text-align: center; margin: 12px 0;">
-                <img src="{{ . }}" alt="{{ $.Title }}" style="max-width: 100%; border: 2px outset var(--border-dark);">
+            <div class="featured-image">
+                <img src="{{ . }}" alt="{{ $.Title }}">
             </div>
             {{ end }}
         </header>
-        
-        <!-- Table of Contents -->
+
+        <!-- Inline Heading Navigation -->
         {{ if and .Params.toc (.TableOfContents) }}
-        <div class="toc" style="background: var(--bg-secondary); border: 1px inset var(--border-dark); padding: 8px; margin: 12px 0;">
-            <div style="font-weight: bold; margin-bottom: 6px; border-bottom: 1px solid var(--border-dark); padding-bottom: 2px;">
-                📋 Table of Contents
-            </div>
+        <nav class="heading-nav" aria-label="Heading navigation">
             {{ .TableOfContents }}
-        </div>
+        </nav>
         {{ end }}
-        
-        <!-- Main Content -->
+
+        <!-- Post with Sidebar Layout -->
+        {{ if and .Params.toc (.TableOfContents) }}
+        <div class="post-with-sidebar">
+            <!-- TOC Sidebar -->
+            <aside class="toc-sidebar" id="toc-sidebar">
+                <button class="toc-toggle" id="toc-toggle" aria-expanded="false" aria-controls="toc-list">
+                    <span class="toc-toggle-icon">📋</span>
+                    <span class="toc-toggle-text">目录</span>
+                    <span class="toc-toggle-arrow">▾</span>
+                </button>
+                <nav class="toc-list" id="toc-list" hidden>
+                    <div class="toc-title">📋 Table of Contents</div>
+                    {{ .TableOfContents }}
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="post-content">
+                {{ .Content }}
+            </div>
+        </div>
+        {{ else }}
+        <!-- Main Content without TOC -->
         <div class="content">
             {{ .Content }}
         </div>
-        
+        {{ end }}
+
         <!-- Post Footer -->
-        <footer class="post-footer" style="margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--border-dark);">
-            
+        <footer class="post-footer">
+
             <!-- Social Sharing -->
             {{ if .Site.Params.show_sharing }}
-            <div class="sharing" style="margin-bottom: 12px;">
-                <div style="font-weight: bold; margin-bottom: 6px;">📤 Share this post:</div>
-                <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                    <a href="https://twitter.com/intent/tweet?text={{ .Title }}&url={{ .Permalink }}" 
-                       target="_blank" class="btn" style="font-size: 10px;">Twitter</a>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ .Permalink }}" 
-                       target="_blank" class="btn" style="font-size: 10px;">Facebook</a>
-                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ .Permalink }}" 
-                       target="_blank" class="btn" style="font-size: 10px;">LinkedIn</a>
-                    <a href="mailto:?subject={{ .Title }}&body={{ .Permalink }}" 
-                       class="btn" style="font-size: 10px;">Email</a>
+            <div class="sharing">
+                <div class="sharing-title">📤 Share this post:</div>
+                <div class="sharing-buttons">
+                    <a href="https://twitter.com/intent/tweet?text={{ .Title }}&url={{ .Permalink }}"
+                       target="_blank" class="btn">Twitter</a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ .Permalink }}"
+                       target="_blank" class="btn">Facebook</a>
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ .Permalink }}"
+                       target="_blank" class="btn">LinkedIn</a>
+                    <a href="mailto:?subject={{ .Title }}&body={{ .Permalink }}"
+                       class="btn">Email</a>
                 </div>
             </div>
             {{ end }}
-            
+
             <!-- Series Navigation -->
             {{ with .Params.series }}
             {{ $series := index . 0 }}
             {{ $seriesPages := where $.Site.RegularPages ".Params.series" "intersect" . }}
             {{ if gt (len $seriesPages) 1 }}
-            <div class="series-nav" style="background: var(--bg-secondary); border: 1px inset var(--border-dark); padding: 8px; margin: 12px 0;">
-                <div style="font-weight: bold; margin-bottom: 6px;">📚 More in "{{ $series }}" series:</div>
-                <ul style="padding-left: 1rem; margin: 0; font-size: 10px;">
+            <div class="series-nav">
+                <div class="series-nav-title">📚 More in "{{ $series }}" series:</div>
+                <ul>
                     {{ range $seriesPages.ByDate }}
-                    <li style="margin: 2px 0;">
+                    <li>
                         {{ if eq .Permalink $.Permalink }}
                         <strong>{{ .Title }}</strong> (current)
                         {{ else }}
                         <a href="{{ .Permalink }}">{{ .Title }}</a>
                         {{ end }}
-                        <span style="color: var(--text-secondary);"> - {{ .Date.Format "Jan 2" }}</span>
+                        <span class="text-secondary"> - {{ .Date.Format "Jan 2" }}</span>
                     </li>
                     {{ end }}
                 </ul>
             </div>
             {{ end }}
             {{ end }}
-            
+
             <!-- Related Posts -->
             {{ $related := .Site.RegularPages.Related . | first 3 }}
             {{ if $related }}
-            <div class="related-posts" style="background: var(--bg-secondary); border: 1px inset var(--border-dark); padding: 8px; margin: 12px 0;">
-                <div style="font-weight: bold; margin-bottom: 6px;">🔗 Related Posts:</div>
-                <ul style="padding-left: 1rem; margin: 0; font-size: 10px;">
+            <div class="related-posts">
+                <div class="related-posts-title">🔗 Related Posts:</div>
+                <ul>
                     {{ range $related }}
-                    <li style="margin: 2px 0;">
+                    <li>
                         <a href="{{ .Permalink }}">{{ .Title }}</a>
-                        <span style="color: var(--text-secondary);"> - {{ .Date.Format "Jan 2" }}</span>
+                        <span class="text-secondary"> - {{ .Date.Format "Jan 2" }}</span>
                     </li>
                     {{ end }}
                 </ul>
             </div>
             {{ end }}
-            
+
             <!-- Edit Link -->
             {{ if .Site.Params.edit_page }}
-            <div class="edit-link" style="font-size: 10px; margin-top: 8px;">
+            <div class="edit-link">
                 {{ with .Site.Params.repo_url }}
                 <a href="{{ . }}/edit/main/content/{{ $.File.Path }}" target="_blank">
                     ✏️ Edit this page on GitHub
@@ -164,32 +184,32 @@
 </article>
 
 <!-- Post Navigation -->
-<nav class="post-nav" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0;">
+<nav class="post-nav">
     {{ with .PrevInSection }}
     <div class="window">
         <div class="window-header">
             <span class="window-title">← Previous Post</span>
         </div>
         <div class="window-content">
-            <a href="{{ .Permalink }}" style="text-decoration: none; color: inherit;">
-                <div style="font-weight: bold; font-size: 10px; margin-bottom: 2px;">{{ .Title }}</div>
-                <div style="font-size: 9px; color: var(--text-secondary);">{{ .Date.Format "Jan 2, 2006" }}</div>
+            <a href="{{ .Permalink }}" class="post-nav-link">
+                <div class="post-nav-link-title">{{ .Title }}</div>
+                <div class="post-nav-link-date">{{ .Date.Format "Jan 2, 2006" }}</div>
             </a>
         </div>
     </div>
     {{ else }}
     <div></div>
     {{ end }}
-    
+
     {{ with .NextInSection }}
     <div class="window">
         <div class="window-header">
             <span class="window-title">Next Post →</span>
         </div>
         <div class="window-content">
-            <a href="{{ .Permalink }}" style="text-decoration: none; color: inherit;">
-                <div style="font-weight: bold; font-size: 10px; margin-bottom: 2px;">{{ .Title }}</div>
-                <div style="font-size: 9px; color: var(--text-secondary);">{{ .Date.Format "Jan 2, 2006" }}</div>
+            <a href="{{ .Permalink }}" class="post-nav-link">
+                <div class="post-nav-link-title">{{ .Title }}</div>
+                <div class="post-nav-link-date">{{ .Date.Format "Jan 2, 2006" }}</div>
             </a>
         </div>
     </div>
