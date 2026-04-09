@@ -31,180 +31,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // AI chat widget
     initAiChatWidget();
+
+    // TOC sidebar
+    initTocSidebar();
 });
 
 function setupSmoothScroll() {
-    const container = document.querySelector('.smooth-scroll') || document.querySelector('.container');
-
-    // 若页面未提供平滑滚动容器，则跳过
-    if (!container) {
-        console.warn('⚠️ 未找到平滑滚动容器（.smooth-scroll / .container），跳过初始化');
-        return;
-    }
-
-    // 仅在手机/平板或减少动画偏好下回退到原生滚动，触屏笔记本仍允许平滑滚动
-    const hasTouchSupport = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    // Native smooth scroll is now handled via CSS scroll-behavior: smooth
+    // This function ensures accessibility by not overriding native scrolling
     const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isCoarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-    const userAgent = navigator.userAgent || '';
-    const isTouchMac = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
-    const isMobileOrTabletUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet|Silk|Kindle/i.test(userAgent);
-    const isMobileOrTablet = isMobileOrTabletUserAgent || isTouchMac || (hasTouchSupport && isCoarsePointer);
-
-    if (isMobileOrTablet || prefersReducedMotion) {
-        console.log('ℹ️ 检测到手机/平板或减少动画偏好，启用原生滚动', {
-            isMobileOrTablet,
-            prefersReducedMotion,
-            hasTouchSupport,
-            isCoarsePointer,
-            maxTouchPoints: navigator.maxTouchPoints || 0
-        });
-        container.style.transform = '';
-        container.style.willChange = '';
-        document.body.style.overflow = '';
-        document.documentElement.style.overflow = '';
-        return;
+    if (prefersReducedMotion) {
+        document.documentElement.style.scrollBehavior = 'auto';
     }
-
-    // 滚动状态
-    let current = 0;
-    let target = 0;
-    let maxScroll = 0;
-    let isInitialized = false;
-    let animationFrameId = null;
-
-    const originalBodyOverflow = document.body.style.overflow;
-    const originalHtmlOverflow = document.documentElement.style.overflow;
-
-    // 配置参数
-    const CONFIG = {
-        ease: 0.12,
-        threshold: 0.5,
-        resizeDebounceDelay: 150,
-        initDelay: 100,
-        fallbackInitDelay: 300
-    };
-
-    function clamp(value, min, max) {
-        return Math.max(min, Math.min(value, max));
-    }
-
-    function updateMaxScroll() {
-        const scrollingElement = document.scrollingElement || document.documentElement;
-        const documentHeight = scrollingElement.scrollHeight;
-        const viewportHeight = window.innerHeight;
-        maxScroll = Math.max(0, documentHeight - viewportHeight);
-
-        console.log('📏 更新滚动范围:', {
-            documentHeight,
-            viewportHeight,
-            maxScroll
-        });
-    }
-
-    function smooth() {
-        current += (target - current) * CONFIG.ease;
-        current = clamp(current, 0, maxScroll);
-
-        if (Math.abs(target - current) < CONFIG.threshold) {
-            current = target;
-        }
-
-        container.style.transform = `translate3d(0, ${-current}px, 0)`;
-        animationFrameId = requestAnimationFrame(smooth);
-    }
-
-    function handleWheel(event) {
-        const isInteractive = event.target.closest('input, textarea, select, [contenteditable="true"]');
-        if (isInteractive) {
-            return;
-        }
-
-        event.preventDefault();
-        target += event.deltaY;
-        target = clamp(target, 0, maxScroll);
-    }
-
-    function debounce(fn, delay) {
-        let timer = null;
-        return function(...args) {
-            clearTimeout(timer);
-            timer = setTimeout(() => fn.apply(this, args), delay);
-        };
-    }
-
-    const handleResize = debounce(() => {
-        updateMaxScroll();
-        target = clamp(target, 0, maxScroll);
-        current = clamp(current, 0, maxScroll);
-    }, CONFIG.resizeDebounceDelay);
-
-    function initSmoothScroll() {
-        if (isInitialized) {
-            console.warn('⚠️ 平滑滚动已初始化，跳过重复初始化');
-            return;
-        }
-
-        // 固定容器 + 隐藏原生滚动条，避免双滚动
-        container.style.willChange = 'transform';
-        document.body.style.overflow = 'hidden';
-        document.documentElement.style.overflow = 'hidden';
-
-        // 接管滚动前，吸收浏览器可能存在的原生滚动偏移
-        const nativeScrollY = window.scrollY || window.pageYOffset || 0;
-        window.scrollTo(0, 0);
-
-        current = nativeScrollY;
-        target = nativeScrollY;
-        updateMaxScroll();
-        target = clamp(target, 0, maxScroll);
-        current = clamp(current, 0, maxScroll);
-        smooth();
-
-        window.addEventListener('wheel', handleWheel, { passive: false });
-        window.addEventListener('resize', handleResize);
-
-        isInitialized = true;
-        console.log('✅ 平滑滚动已初始化');
-    }
-
-    function cleanup() {
-        if (animationFrameId) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-        }
-
-        window.removeEventListener('wheel', handleWheel);
-        window.removeEventListener('resize', handleResize);
-        window.removeEventListener('componentsLoaded', onComponentsLoaded);
-
-        container.style.transform = '';
-        container.style.willChange = '';
-        document.body.style.overflow = originalBodyOverflow;
-        document.documentElement.style.overflow = originalHtmlOverflow;
-        document.body.style.height = '';
-
-        console.log('🧹 平滑滚动资源已清理');
-    }
-
-    function onComponentsLoaded(event) {
-        console.log('📦 接收到 componentsLoaded 事件');
-        if (event.detail && typeof event.detail.loadTime === 'number') {
-            console.log(`   组件加载耗时: ${event.detail.loadTime.toFixed(2)}ms`);
-        }
-
-        setTimeout(initSmoothScroll, CONFIG.initDelay);
-    }
-
-    window.addEventListener('componentsLoaded', onComponentsLoaded);
-    window.addEventListener('beforeunload', cleanup);
-
-    // 若未触发组件事件，仍在 DOM ready 后兜底初始化
-    setTimeout(() => {
-        if (!isInitialized) {
-            initSmoothScroll();
-        }
-    }, CONFIG.fallbackInitDelay);
 }
 
 function initPostListItemClick() {
@@ -458,37 +296,37 @@ function initImageGalleries() {
 
 function openLightbox(img) {
     const lightbox = document.createElement('div');
-    lightbox.style.position = 'fixed';
-    lightbox.style.top = '0';
-    lightbox.style.left = '0';
-    lightbox.style.width = '100%';
-    lightbox.style.height = '100%';
-    lightbox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-    lightbox.style.zIndex = '10000';
-    lightbox.style.display = 'flex';
-    lightbox.style.alignItems = 'center';
-    lightbox.style.justifyContent = 'center';
-    lightbox.style.cursor = 'pointer';
-    
+    lightbox.className = 'lightbox-overlay';
+
     const lightboxImg = document.createElement('img');
+    lightboxImg.className = 'lightbox-image';
     lightboxImg.src = img.src;
     lightboxImg.alt = img.alt;
-    lightboxImg.style.maxWidth = '90%';
-    lightboxImg.style.maxHeight = '90%';
-    lightboxImg.style.border = '2px outset var(--border-dark)';
-    
+
     lightbox.appendChild(lightboxImg);
     document.body.appendChild(lightbox);
-    
-    lightbox.addEventListener('click', function() {
-        document.body.removeChild(lightbox);
-    });
-    
+
+    // Trigger reflow for transition
+    lightbox.offsetHeight;
+    lightbox.classList.add('active');
+
+    function closeLightbox() {
+        lightbox.classList.add('closing');
+        lightbox.classList.remove('active');
+        setTimeout(function() {
+            if (lightbox.parentNode) {
+                document.body.removeChild(lightbox);
+            }
+        }, 250);
+        document.removeEventListener('keydown', closeHandler);
+    }
+
+    lightbox.addEventListener('click', closeLightbox);
+
     // ESC to close
     const closeHandler = function(e) {
         if (e.key === 'Escape') {
-            document.body.removeChild(lightbox);
-            document.removeEventListener('keydown', closeHandler);
+            closeLightbox();
         }
     };
     document.addEventListener('keydown', closeHandler);
@@ -611,6 +449,10 @@ function initAiChatWidget() {
     const messages = document.getElementById('ai-chat-messages');
     const headerAvatar = document.getElementById('ai-chat-header-avatar');
     const clearBtn = document.getElementById('ai-chat-clear');
+    const closeBtn = document.getElementById('ai-chat-close');
+    const charCount = document.getElementById('ai-chat-char-count');
+    const statusDot = document.getElementById('ai-chat-status-dot');
+    const statusText = document.getElementById('ai-chat-status-text');
     const apiBase = resolveAiChatApiBase(widget.dataset.apiBase);
 
     if (!toggle || !panel || !form || !input || !messages || !toggleImage || !headerAvatar || !clearBtn) {
@@ -733,6 +575,71 @@ function initAiChatWidget() {
         }
     });
 
+    closeBtn.addEventListener('click', () => {
+        closePanel();
+    });
+
+    // Character counter
+    if (charCount) {
+        input.addEventListener('input', () => {
+            const len = input.value.length;
+            const max = parseInt(input.maxLength) || 2000;
+            charCount.textContent = `${len}/${max}`;
+
+            charCount.classList.remove('warning', 'error');
+            if (len > max * 0.9) {
+                charCount.classList.add('warning');
+            }
+            if (len >= max) {
+                charCount.classList.add('error');
+            }
+        });
+    }
+
+    // Update status indicator
+    function updateStatus(online) {
+        if (statusDot) {
+            statusDot.classList.toggle('offline', !online);
+        }
+        if (statusText) {
+            statusText.textContent = online ? '在线' : '离线';
+        }
+    }
+
+    // Check API health
+    async function checkApiHealth() {
+        try {
+            const response = await fetch(`${apiBase.replace('/stream', '').replace('/clear', '')}/health`, {
+                method: 'GET',
+                signal: AbortSignal.timeout(3000)
+            });
+            updateStatus(response.ok);
+        } catch {
+            updateStatus(false);
+        }
+    }
+
+    // Initial health check
+    checkApiHealth();
+    // Periodic health check every 30 seconds
+    setInterval(checkApiHealth, 30000);
+
+    // Suggestion buttons
+    document.querySelectorAll('.ai-chat-suggestion').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const prompt = btn.dataset.prompt;
+            if (prompt) {
+                input.value = prompt;
+                input.focus();
+                // Remove welcome message if present
+                const welcome = messages.querySelector('.ai-chat-welcome');
+                if (welcome) {
+                    welcome.remove();
+                }
+            }
+        });
+    });
+
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
@@ -766,6 +673,7 @@ function initAiChatWidget() {
         const sendBtn = document.getElementById('ai-chat-send');
         if (sendBtn) {
             sendBtn.disabled = true;
+            sendBtn.setAttribute('aria-disabled', 'true');
         }
         adjustPanelHeight();
 
@@ -779,6 +687,7 @@ function initAiChatWidget() {
             clearBtn.disabled = false;
             if (sendBtn) {
                 sendBtn.disabled = false;
+                sendBtn.removeAttribute('aria-disabled');
             }
             if (currentAssistantRow) {
                 currentAssistantRow.classList.remove('is-thinking');
@@ -820,7 +729,8 @@ function toSvgDataUri(svgText) {
 }
 
 function getDefaultLauncherImage() {
-    return toSvgDataUri('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f766e"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs><rect width="96" height="96" rx="48" fill="url(#g)"/><circle cx="35" cy="40" r="8" fill="#fff"/><circle cx="61" cy="40" r="8" fill="#fff"/><path d="M30 61c5 8 12 11 18 11s13-3 18-11" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none"/></svg>');
+    // Simple robot face for AI chat - cleaner and more distinguishable
+    return toSvgDataUri('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs><rect width="96" height="96" rx="24" fill="url(#g)"/><rect x="24" y="32" width="16" height="16" rx="4" fill="#fff"/><rect x="56" y="32" width="16" height="16" rx="4" fill="#fff"/><rect x="30" y="56" width="36" height="12" rx="6" fill="#fff"/></svg>');
 }
 
 function getDefaultAiAvatar() {
@@ -836,6 +746,8 @@ function appendMessage(container, role, content, aiAvatar, userAvatar, isThinkin
     row.className = `ai-chat-msg ai-chat-msg-${role}`;
     if (role === 'assistant' && isThinking) {
         row.classList.add('is-thinking');
+        row.setAttribute('aria-label', 'AI 正在输入');
+        row.setAttribute('role', 'status');
     }
 
     const avatar = document.createElement('div');
@@ -989,6 +901,112 @@ function playRetroSound(type) {
     
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.3);
+}
+
+// TOC Sidebar functionality
+function initTocSidebar() {
+    const tocSidebar = document.getElementById('toc-sidebar');
+    const tocToggle = document.getElementById('toc-toggle');
+    const tocList = document.getElementById('toc-list');
+    const tocLinks = document.querySelectorAll('.toc-list a');
+
+    if (!tocSidebar || !tocToggle || !tocList) {
+        return;
+    }
+
+    // Toggle TOC on mobile
+    tocToggle.addEventListener('click', () => {
+        const isExpanded = tocToggle.getAttribute('aria-expanded') === 'true';
+        tocToggle.setAttribute('aria-expanded', String(!isExpanded));
+        if (isExpanded) {
+            tocList.hidden = true;
+        } else {
+            tocList.hidden = false;
+        }
+    });
+
+    // Scroll spy - highlight current section
+    const headings = document.querySelectorAll('.content h1, .content h2, .content h3, .content h4');
+
+    if (headings.length === 0) {
+        return;
+    }
+
+    // Create heading ID map for TOC links
+    const headingIdMap = new Map();
+    headings.forEach(heading => {
+        if (!heading.id) {
+            // Generate ID from text content
+            heading.id = heading.textContent.trim().toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+        }
+        headingIdMap.set(heading.id, heading);
+    });
+
+    // Map TOC links to headings
+    tocLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (headingIdMap.has(id)) {
+                link.dataset.targetId = id;
+            }
+        }
+    });
+
+    // Intersection Observer for scroll spy
+    const observerOptions = {
+        rootMargin: '-80px 0px -60% 0px',
+        threshold: 0
+    };
+
+    let currentActiveLink = null;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.id;
+                const link = document.querySelector(`.toc-list a[data-target-id="${id}"]`);
+
+                if (link && link !== currentActiveLink) {
+                    if (currentActiveLink) {
+                        currentActiveLink.classList.remove('active');
+                    }
+                    link.classList.add('active');
+                    currentActiveLink = link;
+
+                    // Scroll TOC list to show active link
+                    const tocListEl = document.getElementById('toc-list');
+                    if (tocListEl) {
+                        const linkTop = link.offsetTop;
+                        const listHeight = tocListEl.clientHeight;
+                        if (linkTop < tocListEl.scrollTop || linkTop > tocListEl.scrollTop + listHeight - 40) {
+                            tocListEl.scrollTop = linkTop - 20;
+                        }
+                    }
+                }
+            }
+        });
+    }, observerOptions);
+
+    headings.forEach(heading => {
+        observer.observe(heading);
+    });
+
+    // Smooth scroll on TOC link click
+    tocLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const targetId = link.dataset.targetId;
+            if (targetId) {
+                const target = document.getElementById(targetId);
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Update URL hash without jumping
+                    history.pushState(null, '', `#${targetId}`);
+                }
+            }
+        });
+    });
 }
 
 // Export functions for global use
