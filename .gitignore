@@ -4,15 +4,33 @@ public/
 # Hugo 锁文件
 .hugo_build.lock
 
+# Hugo 远程资源缓存
+resources/
+
 # macOS 系统文件
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows 系统文件
+Thumbs.db
+ehthumbs.db
 
 # 编辑器
 .vscode/
+.idea/
+*.sublime-*
+*.code-workspace
 
-# 本地配置目录
-ai-assistant/config/
+# 临时文件
+*.swp
+*.swo
+*~
+.MTemporaryItems
+.Trashes
+
 # AI Assistant 敏感信息与依赖
 ai-assistant/.env
 ai-assistant/node_modules/
-ai-assistant/data/chat.db
+ai-assistant/data/
