@@ -7,7 +7,7 @@
   data-launcher-image="{{ .Site.Params.ai_chat.launcher_image | default "" }}"
   data-ai-avatar="{{ .Site.Params.ai_chat.ai_avatar | default "" }}"
 >
-  <button id="ai-chat-toggle" class="ai-chat-toggle" type="button" aria-expanded="false" aria-controls="ai-chat-panel" aria-label="打开 AI 助手">
+  <button id="ai-chat-toggle" class="ai-chat-toggle" type="button" aria-expanded="false" aria-controls="ai-chat-panel" aria-label="打开 AI 助手" aria-haspopup="dialog">
     <img id="ai-chat-toggle-image" alt="AI launcher" />
   </button>
 
@@ -15,18 +15,63 @@
     <header class="ai-chat-header">
       <div class="ai-chat-header-title">
         <img id="ai-chat-header-avatar" alt="AI avatar" />
-        <strong>sbcy</strong>
+        <div class="ai-chat-header-info">
+          <span class="ai-chat-name">AI 助手</span>
+          <span class="ai-chat-status">
+            <span class="ai-chat-status-dot" id="ai-chat-status-dot" aria-hidden="true"></span>
+            <span class="ai-chat-status-text" id="ai-chat-status-text" aria-live="polite">在线</span>
+          </span>
+        </div>
       </div>
       <div class="ai-chat-actions">
-        <button id="ai-chat-clear" type="button">清空</button>
+        <button id="ai-chat-clear" type="button" class="btn-icon btn-clear" title="清空对话">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+        <button id="ai-chat-close" type="button" class="btn-icon btn-chat-close" aria-label="关闭">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
       </div>
     </header>
 
-    <div id="ai-chat-messages" class="ai-chat-messages" aria-live="polite"></div>
+    <div id="ai-chat-messages" class="ai-chat-messages" aria-live="polite">
+      <div class="ai-chat-welcome" role="status">
+        <svg class="ai-chat-welcome-icon" width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="spark-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#888888"/>
+              <stop offset="100%" stop-color="#666666"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z" fill="url(#spark-gradient)" stroke="url(#spark-gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3" fill="none" stroke="url(#spark-gradient)" stroke-width="1.5"/>
+        </svg>
+        <span class="ai-chat-welcome-text">有什么可以帮助你的吗？</span>
+        <div class="ai-chat-suggestions">
+          <button class="ai-chat-suggestion" data-prompt="介绍一下这个博客">关于博客</button>
+          <button class="ai-chat-suggestion" data-prompt="最新文章有哪些">最新文章</button>
+          <button class="ai-chat-suggestion" data-prompt="帮我写一段自我介绍">写介绍</button>
+        </div>
+      </div>
+    </div>
 
     <form id="ai-chat-form" class="ai-chat-form">
-      <input id="ai-chat-input" type="text" placeholder="我在这里，不躲，不绕，你不用硬撑，不用解释，不哄你，你只是太久没被稳稳接住了" maxlength="2000" autocomplete="off" />
-      <button id="ai-chat-send" type="submit">Send</button>
+      <div class="ai-chat-input-wrapper">
+        <label for="ai-chat-input" class="sr-only">输入你的问题</label>
+        <input id="ai-chat-input" type="text" placeholder="输入你的问题..." maxlength="2000" autocomplete="off" />
+        <span class="ai-chat-char-count" id="ai-chat-char-count">0/2000</span>
+      </div>
+      <button id="ai-chat-send" type="submit" class="btn-send" aria-label="发送">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
     </form>
   </section>
 </div>

@@ -33,4 +33,5 @@ ehthumbs.db
 # AI Assistant 敏感信息与依赖
 ai-assistant/.env
 ai-assistant/node_modules/
-ai-assistant/data/
+ai-assistant/data/chat.db
+.claude/

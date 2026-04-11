@@ -33,7 +33,11 @@
     {{ range .AlternativeOutputFormats -}}
     <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ $.Site.Title }}">
     {{ end -}}
-    
+
+    <!-- Fonts - Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ "favicon.ico" | relURL }}">
     
@@ -74,17 +78,24 @@
         
         <!-- Site Header -->
         <header class="site-header">
-            <!-- <div class="window">
-                <div class="window-header">
-                    <span class="window-title">{{ .Site.Title }}</span>
-                </div>
-                <div class="window-content">
-                    <a href="{{ .Site.BaseURL }}" class="site-title">{{ .Site.Title }}</a>
-                    {{ with .Site.Params.tagline }}
-                    <div class="site-tagline">{{ . }}</div>
-                    {{ end }}
-                </div>
-            </div> -->
+            <div class="site-branding">
+                <a href="{{ .Site.BaseURL | relLangURL }}" class="site-title">{{ .Site.Title }}</a>
+                <div class="site-tagline">{{ .Site.Params.description }}</div>
+            </div>
+            <div class="site-social">
+                {{ with .Site.Params.social.twitter }}
+                <a href="https://twitter.com/{{ . }}" class="social-link" target="_blank" rel="noopener" aria-label="Twitter">𝕏</a>
+                {{ end }}
+                {{ with .Site.Params.social.github }}
+                <a href="{{ . }}" class="social-link" target="_blank" rel="noopener" aria-label="GitHub">⌨️</a>
+                {{ end }}
+                {{ with .Site.Params.social.email }}
+                <a href="mailto:{{ . }}" class="social-link" aria-label="Email">📧</a>
+                {{ end }}
+                {{ with .Site.Home.OutputFormats.Get "RSS" }}
+                <a href="{{ .RelPermalink }}" class="social-link" target="_blank" aria-label="RSS">📡</a>
+                {{ end }}
+            </div>
         </header>
         
         <!-- Main Content -->

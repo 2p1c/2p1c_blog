@@ -2,171 +2,273 @@
 <div class="window">
     <div class="window-header">
         <span class="window-title">
-            <!-- 将站点标题包裹在指向首页的超链接中 -->
-            <a href="{{ .Site.BaseURL | relLangURL }}" style="text-decoration: none; color: inherit;">{{ .Site.Title }}</a>
+            {{ if .IsHome }}
+                {{ .Site.Title }}
+            {{ else if eq .Kind "taxonomy" }}
+                {{ .Title }} ({{ len .Pages }} {{ if eq (len .Pages) 1 }}post{{ else }}posts{{ end }})
+            {{ else if eq .Kind "term" }}
+                {{ .Title }}: {{ .Data.Term }} ({{ len .Pages }} {{ if eq (len .Pages) 1 }}post{{ else }}posts{{ end }})
+            {{ else }}
+                {{ .Title }} ({{ len .Pages }} {{ if eq (len .Pages) 1 }}post{{ else }}posts{{ end }})
+            {{ end }}
         </span>
     </div>
     <div class="window-content">
+        <!-- Section Description -->
         {{ with .Content }}
-        <div class="content">
+        <div class="content section-content-bottom">
             {{ . }}
         </div>
         {{ end }}
-        
-        {{ if .Site.Params.show_welcome_message }}
-        <div class="marquee">
-            <div class="marquee-text">
-                {{ .Site.Params.welcome_message | default "Welcome to our vintage web experience! Browse through our content with that classic 90s feel." }}
+
+        {{ with .Description }}
+        <div class="section-description">
+            {{ . }}
+        </div>
+        {{ end }}
+
+        <!-- Taxonomy specific info -->
+        {{ if eq .Kind "term" }}
+        <div class="term-info">
+            <div class="term-info-title">
+                {{ if eq .Data.Plural "categories" }}📂{{ else if eq .Data.Plural "tags" }}🏷️{{ else if eq .Data.Plural "series" }}📚{{ else }}📋{{ end }}
+                {{ .Data.Singular | title }}: {{ .Data.Term }}
+            </div>
+            <div class="term-info-meta">
+                Showing {{ len .Pages }} {{ if eq (len .Pages) 1 }}post{{ else }}posts{{ end }}
+                {{ if eq .Data.Plural "categories" }}in this category{{ else if eq .Data.Plural "tags" }}with this tag{{ else if eq .Data.Plural "series" }}in this series{{ else }}{{ end }}
             </div>
         </div>
         {{ end }}
-    </div>
-</div>
 
-<!-- Featured Posts -->
-{{ $posts := where .Site.RegularPages "Type" "posts" }}
-{{ if $posts }}
-<div class="window">
-    <div class="window-header">
-        <span class="window-title">Recent Posts</span>
-    </div>
-    <div class="window-content">
-        <ul class="post-list">
-            {{ range first 5 $posts }}
-            <li class="post-list-item">
-                <div class="post-list-title">
-                    <a href="{{ .Permalink }}">{{ .Title }}</a>
-                </div>
-                <div class="post-list-meta">
-                    <span class="post-meta-item">{{ .Date.Format "Jan 2, 2006" }}</span>
-                    {{ with .Params.categories }}
-                    <span class="post-meta-item">
-                        {{ range . }}
-                        <a href="{{ "/categories/" | relLangURL }}{{ . | urlize }}">{{ . }}</a>
+        <!-- Archive View Toggle -->
+        {{ if .Pages }}
+        <div class="view-options" role="group" aria-label="View options">
+            <span class="view-options-label">📋 View:</span>
+            <button class="btn view-btn" data-view="list" id="listBtn" aria-pressed="true">List</button>
+            <button class="btn view-btn" data-view="grid" id="gridBtn" aria-pressed="false">Grid</button>
+            <button class="btn view-btn" data-view="archive" id="archiveBtn" aria-pressed="false">Archive</button>
+        </div>
+        {{ end }}
+
+        <!-- Posts List View -->
+        <div id="listView" class="posts-view">
+            {{ if .Pages }}
+            <ul class="post-list">
+                {{ range .Pages.ByDate.Reverse }}
+                <li class="post-list-item">
+                    {{ with .Params.featured_image }}
+                    <div class="post-thumbnail">
+                        <img src="{{ . }}" alt="{{ $.Title }}">
+                    </div>
+                    {{ end }}
+
+                    <div class="post-list-title">
+                        <a href="{{ .Permalink }}">{{ .Title }}</a>
+                    </div>
+
+                    <div class="post-list-meta">
+                        <span class="post-meta-item">📅 {{ .Date.Format "Jan 2, 2006" }}</span>
+
+                        {{ with .Params.author }}
+                        <span class="post-meta-item">👤 {{ . }}</span>
                         {{ end }}
-                    </span>
+
+                        {{ with .Params.categories }}
+                        <span class="post-meta-item">
+                            📂 {{ range $i, $cat := . }}{{ if $i }}, {{ end }}<a href="{{ "/categories/" | relLangURL }}{{ $cat | urlize }}">{{ $cat }}</a>{{ end }}
+                        </span>
+                        {{ end }}
+
+                        <span class="post-meta-item">📖 {{ .ReadingTime }} min read</span>
+                        <span class="post-meta-item">📊 {{ .WordCount }} words</span>
+                    </div>
+
+                    {{ with .Summary }}
+                    <div class="post-list-summary">{{ . | truncate 200 }}</div>
+                    {{ end }}
+
+                    {{ with .Params.tags }}
+                    <div class="post-tags">
+                        {{ range . }}
+                        <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" class="post-tag">
+                           {{ . }}
+                        </a>
+                        {{ end }}
+                    </div>
+                    {{ end }}
+
+                    <div class="clearfix"></div>
+                </li>
+                {{ end }}
+            </ul>
+            {{ else }}
+            <div class="empty-state">
+                📭 No posts found in this section.
+            </div>
+            {{ end }}
+        </div>
+
+        <!-- Posts Grid View -->
+        <div id="gridView" class="posts-view posts-view-hidden">
+            {{ if .Pages }}
+            <div class="posts-grid">
+                {{ range .Pages.ByDate.Reverse }}
+                <div class="post-card">
+                    {{ with .Params.featured_image }}
+                    <div class="post-card-image">
+                        <img src="{{ . }}" alt="{{ $.Title }}">
+                    </div>
+                    {{ end }}
+
+                    <div class="card-title">
+                        <a href="{{ .Permalink }}">{{ .Title }}</a>
+                    </div>
+
+                    <div class="card-meta">
+                        {{ .Date.Format "Jan 2, 2006" }} • {{ .ReadingTime }} min read
+                    </div>
+
+                    {{ with .Summary }}
+                    <div class="card-summary">{{ . | truncate 100 }}</div>
                     {{ end }}
                 </div>
-                {{ with .Summary }}
-                <div class="post-list-summary">{{ . | truncate 150 }}</div>
                 {{ end }}
-            </li>
+            </div>
             {{ end }}
-        </ul>
-        
-        {{ if gt (len $posts) 5 }}
-        <div style="text-align: center; margin-top: 12px;">
-            <a href="{{ "/posts/" | relLangURL }}" class="btn">View All Posts</a>
+        </div>
+
+        <!-- Archive View -->
+        <div id="archiveView" class="posts-view posts-view-hidden">
+            {{ if .Pages }}
+            {{ range .Pages.GroupByDate "2006" }}
+            <div class="archive-year">{{ .Key }}</div>
+            {{ range .Pages.GroupByDate "January" }}
+            <div class="archive-month">
+                <strong>{{ .Key }}</strong> ({{ len .Pages }} {{ if eq (len .Pages) 1 }}post{{ else }}posts{{ end }})
+                <ul class="archive-month-list">
+                    {{ range .Pages.ByDate.Reverse }}
+                    <li class="archive-item">
+                        <span class="archive-date">{{ .Date.Format "02" }}</span> -
+                        <a href="{{ .Permalink }}">{{ .Title }}</a>
+                        {{ with .Params.categories }}
+                        <span class="archive-category">
+                            ({{ range $i, $cat := . }}{{ if $i }}, {{ end }}{{ $cat }}{{ end }})
+                        </span>
+                        {{ end }}
+                    </li>
+                    {{ end }}
+                </ul>
+            </div>
+            {{ end }}
+            {{ end }}
+            {{ end }}
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{{ if .Paginator }}
+{{ if gt .Paginator.TotalPages 1 }}
+<div class="window">
+    <div class="window-header">
+        <span class="window-title">📄 Page Navigation</span>
+    </div>
+    <div class="window-content">
+        <div class="pagination">
+            {{ if .Paginator.HasPrev }}
+            <a href="{{ .Paginator.Prev.URL }}">← Previous</a>
+            {{ end }}
+
+            {{ range .Paginator.Pagers }}
+            {{ if eq . $.Paginator }}
+            <span class="current">{{ .PageNumber }}</span>
+            {{ else }}
+            <a href="{{ .URL }}">{{ .PageNumber }}</a>
+            {{ end }}
+            {{ end }}
+
+            {{ if .Paginator.HasNext }}
+            <a href="{{ .Paginator.Next.URL }}">Next →</a>
+            {{ end }}
+        </div>
+
+        <div class="page-info">
+            Page {{ .Paginator.PageNumber }} of {{ .Paginator.TotalPages }}
+            ({{ .Paginator.TotalNumberOfElements }} total {{ if eq .Paginator.TotalNumberOfElements 1 }}post{{ else }}posts{{ end }})
+        </div>
+    </div>
+</div>
+{{ end }}
+{{ end }}
+
+<!-- Related Taxonomies -->
+{{ if and (eq .Kind "section") (.Site.Taxonomies) }}
+<div class="window">
+    <div class="window-header">
+        <span class="window-title">🗂️ Browse by Category</span>
+    </div>
+    <div class="window-content">
+        {{ with .Site.Taxonomies.categories }}
+        <div class="tag-cloud">
+            {{ range $name, $pages := . }}
+            <a href="{{ "/categories/" | relLangURL }}{{ $name | urlize }}">
+                📂 {{ $name | title }} ({{ len $pages }})
+            </a>
+            {{ end }}
+        </div>
+        {{ end }}
+
+        {{ with .Site.Taxonomies.tags }}
+        <div class="tag-section">
+            <div class="section-title">🏷️ Popular Tags:</div>
+            <div class="tag-cloud">
+                {{ range first 20 (.ByCount) }}
+                <a href="{{ "/tags/" | relLangURL }}{{ .Name | urlize }}">
+                    {{ .Name }} ({{ .Count }})
+                </a>
+                {{ end }}
+            </div>
         </div>
         {{ end }}
     </div>
 </div>
 {{ end }}
 
-<!-- Featured Content Sections -->
-{{ if .Site.Params.show_featured_sections }}
-<div class="window">
-    <div class="window-header">
-        <span class="window-title">Featured Content</span>
-    </div>
-    <div class="window-content">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
-            <!-- Typography Showcase -->
-            {{ $typography := .Site.GetPage "/posts/typography-showcase" }}
-            {{ if $typography }}
-            <div style="background: var(--bg-secondary); border: 1px outset var(--border-dark); padding: 8px; text-align: center;">
-                <div style="font-weight: bold; margin-bottom: 4px;">Typography</div>
-                <div style="font-size: 10px; margin-bottom: 6px;">See all typography features</div>
-                <a href="{{ $typography.Permalink }}" class="btn">View Demo</a>
-            </div>
-            {{ end }}
-            
-            <!-- Media Content -->
-            {{ $media := .Site.GetPage "/posts/media-content" }}
-            {{ if $media }}
-            <div style="background: var(--bg-secondary); border: 1px outset var(--border-dark); padding: 8px; text-align: center;">
-                <div style="font-weight: bold; margin-bottom: 4px;">Media</div>
-                <div style="font-size: 10px; margin-bottom: 6px;">Images, videos, and more</div>
-                <a href="{{ $media.Permalink }}" class="btn">View Demo</a>
-            </div>
-            {{ end }}
-            
-            <!-- Code Examples -->
-            {{ $code := .Site.GetPage "/posts/code-examples" }}
-            {{ if $code }}
-            <div style="background: var(--bg-secondary); border: 1px outset var(--border-dark); padding: 8px; text-align: center;">
-                <div style="font-weight: bold; margin-bottom: 4px;">Code</div>
-                <div style="font-size: 10px; margin-bottom: 6px;">Syntax highlighting demos</div>
-                <a href="{{ $code.Permalink }}" class="btn">View Demo</a>
-            </div>
-            {{ end }}
-            
-            <!-- Tables and Lists -->
-            {{ $tables := .Site.GetPage "/posts/tables-and-lists" }}
-            {{ if $tables }}
-            <div style="background: var(--bg-secondary); border: 1px outset var(--border-dark); padding: 8px; text-align: center;">
-                <div style="font-weight: bold; margin-bottom: 4px;">Tables</div>
-                <div style="font-size: 10px; margin-bottom: 6px;">Data presentation styles</div>
-                <a href="{{ $tables.Permalink }}" class="btn">View Demo</a>
-            </div>
-            {{ end }}
-        </div>
-    </div>
-</div>
-{{ end }}
+<script>
+function toggleView(viewType) {
+    // Hide all views
+    document.getElementById('listView').classList.add('posts-view-hidden');
+    document.getElementById('gridView').classList.add('posts-view-hidden');
+    document.getElementById('archiveView').classList.add('posts-view-hidden');
 
-<!-- Statistics -->
-{{ if .Site.Params.show_stats }}
-<div class="window">
-    <div class="window-header">
-        <span class="window-title">Site Statistics</span>
-    </div>
-    <div class="window-content">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; text-align: center;">
-            <div class="status-item">
-                <div style="font-weight: bold;">{{ len .Site.RegularPages }}</div>
-                <div style="font-size: 9px;">Total Pages</div>
-            </div>
-            <div class="status-item">
-                <div style="font-weight: bold;">{{ len (where .Site.RegularPages "Type" "posts") }}</div>
-                <div style="font-size: 9px;">Blog Posts</div>
-            </div>
-            <div class="status-item">
-                <div style="font-weight: bold;">{{ len .Site.Taxonomies.categories }}</div>
-                <div style="font-size: 9px;">Categories</div>
-            </div>
-            <div class="status-item">
-                <div style="font-weight: bold;">{{ len .Site.Taxonomies.tags }}</div>
-                <div style="font-size: 9px;">Tags</div>
-            </div>
-        </div>
-    </div>
-</div>
-{{ end }}
+    // Reset button states
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.remove('view-active');
+        btn.setAttribute('aria-pressed', 'false');
+    });
 
-<!-- Nostalgic Elements -->
-{{ if .Site.Params.show_retro_elements }}
-<div class="window">
-    <div class="window-header">
-        <span class="window-title">✨ Retro Web Experience ✨</span>
-    </div>
-    <div class="window-content">
-        <div style="text-align: center; padding: 8px;">
-            <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">
-                <span class="blink">🌟</span> 
-                You are visitor number: 
-                <span style="background: #000; color: #00ff00; padding: 2px 4px; font-family: 'Courier New', monospace;">{{ now.Unix | string }}</span>
-                <span class="blink">🌟</span>
-            </div>
-            <div style="font-size: 10px; margin-bottom: 8px;">
-                Best viewed in {{ if eq (now.Weekday) 0 }}Netscape Navigator{{ else if eq (now.Weekday) 1 }}Internet Explorer{{ else if eq (now.Weekday) 2 }}Mozilla Firefox{{ else if eq (now.Weekday) 3 }}Opera{{ else if eq (now.Weekday) 4 }}Safari{{ else if eq (now.Weekday) 5 }}Chrome{{ else }}Any Browser{{ end }} 
-                at 1024x768 resolution
-            </div>
-            <div style="font-size: 9px; color: var(--text-secondary);">
-                Last updated: {{ .Site.Lastmod.Format "Monday, January 2, 2006 at 3:04 PM" }}
-            </div>
-        </div>
-    </div>
-</div>
-{{ end }}
+    // Show selected view and highlight button
+    document.getElementById(viewType + 'View').classList.remove('posts-view-hidden');
+    document.getElementById(viewType + 'Btn').classList.add('view-active');
+    document.getElementById(viewType + 'Btn').setAttribute('aria-pressed', 'true');
+
+    // Store preference
+    localStorage.setItem('preferredView', viewType);
+}
+
+// Initialize view toggle buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const preferredView = localStorage.getItem('preferredView') || 'list';
+    toggleView(preferredView);
+
+    // Add click handlers to view buttons
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const viewType = this.getAttribute('data-view');
+            toggleView(viewType);
+        });
+    });
+});
+</script>
 {{ end }}
