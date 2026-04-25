@@ -92,7 +92,7 @@ export function loadPostsIndex(indexPath) {
  * personaId 未知时回退到默认 persona（默认 warm-senior）。
  * 预估 token 数超过预算 80% 时记录警告。
  */
-export function composeSystemPrompt(personaId, personasConfig, baseIdentity, postsIndexText) {
+export function composeSystemPrompt(personaId, personasConfig, baseIdentity, postsIndexText, userName = null) {
   // 解析 personaId：未知或空值时回退到默认
   const resolvedPersonaId = personaId && personasConfig.personas[personaId]
     ? personaId
@@ -115,7 +115,12 @@ export function composeSystemPrompt(personaId, personasConfig, baseIdentity, pos
     knowledgeSection = `\n## KNOWLEDGE — 博客内容\n以下是博客中已发布文章的信息，你可以根据这些信息回答用户关于博客内容的问题，推荐相关文章，或讨论文章主题：\n\n${postsIndexText}\n\n当用户询问博客相关内容时，请基于以上真实文章信息回答。如果没有匹配的文章，诚实告知而不是编造不存在的内容。`;
   }
 
-  const composed = `${baseIdentity}${toneSection}${knowledgeSection}`;
+  // 用户名称注入：如果提供了用户名，插入到 ## IDENTITY 段
+  const nameContext = (userName && typeof userName === 'string' && userName.trim())
+    ? `\n\n当前正在和你对话的用户叫「${userName.trim()}」。请在对话中自然地使用对方的名字，但不要每句话都叫一遍。`
+    : '';
+
+  const composed = `${baseIdentity}${nameContext}${toneSection}${knowledgeSection}`;
 
   // Token 预算监控
   const estimatedTokens = estimateTokens(composed);

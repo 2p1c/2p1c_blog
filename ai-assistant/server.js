@@ -42,9 +42,21 @@ const postsIndexText = loadPostsIndex(
 // composeSystemPrompt 的包装函数，捕获启动时加载的配置
 // 提供与原始 composeSystemPrompt 相同的对外接口
 // 在 /chat/stream 处理器中每次请求调用，实现动态性格切换
-function composePrompt(personaId) {
+function composePrompt(personaId, userId = null) {
   const baseIdentity = loadSystemPrompt();
-  return composeSystemPrompt(personaId, personasConfig, baseIdentity, postsIndexText);
+  // Resolve user name for name-aware conversation
+  let userName = null;
+  if (userId && typeof userId === 'string') {
+    try {
+      const profile = selectUserProfileStmt.get(userId.trim());
+      if (profile && profile.display_name) {
+        userName = profile.display_name;
+      }
+    } catch (error) {
+      // Non-critical — continue without name if lookup fails
+    }
+  }
+  return composeSystemPrompt(personaId, personasConfig, baseIdentity, postsIndexText, userName);
 }
 
 const PORT = Number(process.env.PORT || 3001);
@@ -104,6 +116,15 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 CREATE INDEX IF NOT EXISTS idx_messages_session_id_created_at ON messages(session_id, created_at);
+
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id TEXT PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  last_seen_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_profiles_last_seen ON user_profiles(last_seen_at);
 `);
 
 const upsertSessionStmt = db.prepare(`
@@ -127,6 +148,20 @@ LIMIT ?
 
 const clearMessagesStmt = db.prepare('DELETE FROM messages WHERE session_id = ?');
 
+const upsertUserProfileStmt = db.prepare(`
+INSERT INTO user_profiles (id, display_name, created_at, last_seen_at)
+VALUES (@id, @displayName, @createdAt, @lastSeenAt)
+ON CONFLICT(id) DO UPDATE SET
+  display_name = excluded.display_name,
+  last_seen_at = excluded.last_seen_at
+`);
+
+const selectUserProfileStmt = db.prepare(`
+SELECT id, display_name
+FROM user_profiles
+WHERE id = ?
+`);
+
 const ensureSessionAndInsertMessage = db.transaction((sessionId, role, content) => {
   const now = Date.now();
   upsertSessionStmt.run({ id: sessionId, createdAt: now, updatedAt: now });
@@ -141,6 +176,14 @@ const clearSessionMessages = db.transaction((sessionId) => {
 
 function sendJsonError(res, status, code, message) {
   return res.status(status).json({ code, message });
+}
+
+function sanitizeDisplayName(raw) {
+  return raw
+    .trim()
+    .replace(/<[^>]*>/g, '')   // strip HTML tags
+    .replace(/[<>"'&]/g, '')    // strip special HTML chars
+    .slice(0, 50);
 }
 
 function isValidSessionId(sessionId) {
@@ -780,8 +823,61 @@ app.post('/chat/clear', (req, res) => {
   }
 });
 
+app.post('/chat/register', (req, res) => {
+  const { uuid, name } = req.body || {};
+
+  if (typeof uuid !== 'string' || uuid.trim().length < 8 || uuid.trim().length > 128) {
+    return sendJsonError(res, 400, 'BAD_REQUEST', 'uuid is required and must be 8-128 characters');
+  }
+
+  if (typeof name !== 'string' || name.trim().length === 0) {
+    return sendJsonError(res, 400, 'BAD_REQUEST', 'name is required');
+  }
+
+  const sanitizedName = sanitizeDisplayName(name);
+  if (sanitizedName.length === 0) {
+    return sendJsonError(res, 400, 'BAD_REQUEST', 'name is required');
+  }
+  if (sanitizedName.length > 50) {
+    return sendJsonError(res, 400, 'BAD_REQUEST', 'name must be 1-50 characters');
+  }
+
+  try {
+    const now = Date.now();
+    upsertUserProfileStmt.run({
+      id: uuid.trim(),
+      displayName: sanitizedName,
+      createdAt: now,
+      lastSeenAt: now
+    });
+    return res.json({
+      success: true,
+      profile: { id: uuid.trim(), display_name: sanitizedName }
+    });
+  } catch (error) {
+    console.error('register user profile failed:', error);
+    return sendJsonError(res, 500, 'UPSTREAM_ERROR', 'failed to register user profile');
+  }
+});
+
+app.get('/chat/profile', (req, res) => {
+  const uuid = (req.query.uuid || '').trim();
+
+  if (!uuid || uuid.length < 8 || uuid.length > 128) {
+    return sendJsonError(res, 400, 'BAD_REQUEST', 'uuid query parameter is required and must be 8-128 characters');
+  }
+
+  try {
+    const profile = selectUserProfileStmt.get(uuid);
+    return res.json({ profile: profile || null });
+  } catch (error) {
+    console.error('get user profile failed:', error);
+    return sendJsonError(res, 500, 'UPSTREAM_ERROR', 'failed to get user profile');
+  }
+});
+
 app.post('/chat/stream', async (req, res) => {
-  const { session_id: rawSessionId, message, persona_id: personaId } = req.body || {};
+  const { session_id: rawSessionId, message, persona_id: personaId, user_id: userId } = req.body || {};
 
   if (!isValidSessionId(rawSessionId)) {
     return sendJsonError(res, 400, 'BAD_REQUEST', 'session_id is required and must be a valid string');
@@ -814,7 +910,7 @@ app.post('/chat/stream', async (req, res) => {
   const upstreamPayload = {
     model: DEEPSEEK_MODEL,
     stream: true,
-    messages: buildUpstreamMessages(composePrompt(personaId || null), contextMessages)
+    messages: buildUpstreamMessages(composePrompt(personaId || null, userId || null), contextMessages)
   };
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache');
