@@ -453,6 +453,7 @@ function initAiChatWidget() {
     const charCount = document.getElementById('ai-chat-char-count');
     const statusDot = document.getElementById('ai-chat-status-dot');
     const statusText = document.getElementById('ai-chat-status-text');
+    const personaSelect = document.getElementById('ai-chat-persona-select');
     const apiBase = resolveAiChatApiBase(widget.dataset.apiBase);
 
     if (!toggle || !panel || !form || !input || !messages || !toggleImage || !headerAvatar || !clearBtn) {
@@ -472,6 +473,8 @@ function initAiChatWidget() {
     let currentAssistantRow = null;
     let hoverReady = false;
     let suppressHoverUntil = 0;
+    let personaDropdownOpen = false;
+    let currentPersonaId = null;
 
     window.addEventListener('pointermove', () => {
         hoverReady = true;
@@ -563,6 +566,10 @@ function initAiChatWidget() {
         if (!supportsHover || !isOpen) {
             return;
         }
+        // Don't close panel while native select dropdown is open
+        if (personaDropdownOpen) {
+            return;
+        }
         closePanel();
     });
 
@@ -624,6 +631,28 @@ function initAiChatWidget() {
     // Periodic health check every 30 seconds
     setInterval(checkApiHealth, 30000);
 
+    // Personality selector: init from localStorage
+    if (personaSelect) {
+        currentPersonaId = getOrCreatePersonaPreference();
+        personaSelect.value = currentPersonaId;
+
+        personaSelect.addEventListener('change', () => {
+            currentPersonaId = personaSelect.value;
+            savePersonaPreference(currentPersonaId);
+        });
+
+        // Track dropdown open state to suppress panel close
+        personaSelect.addEventListener('mousedown', () => {
+            personaDropdownOpen = true;
+        });
+        personaSelect.addEventListener('focus', () => {
+            personaDropdownOpen = true;
+        });
+        personaSelect.addEventListener('blur', () => {
+            personaDropdownOpen = false;
+        });
+    }
+
     // Suggestion buttons
     document.querySelectorAll('.ai-chat-suggestion').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -670,6 +699,9 @@ function initAiChatWidget() {
         isStreaming = true;
         input.disabled = true;
         clearBtn.disabled = true;
+        if (personaSelect) {
+            personaSelect.disabled = true;
+        }
         const sendBtn = document.getElementById('ai-chat-send');
         if (sendBtn) {
             sendBtn.disabled = true;
@@ -685,6 +717,9 @@ function initAiChatWidget() {
             isStreaming = false;
             input.disabled = false;
             clearBtn.disabled = false;
+            if (personaSelect) {
+                personaSelect.disabled = false;
+            }
             if (sendBtn) {
                 sendBtn.disabled = false;
                 sendBtn.removeAttribute('aria-disabled');
@@ -722,6 +757,25 @@ function getOrCreateSessionId() {
     }
 
     return sessionId;
+}
+
+function getOrCreatePersonaPreference() {
+    const storageKey = 'ai_chat_persona_id';
+    const defaultValue = 'warm-senior';
+    const saved = localStorage.getItem(storageKey);
+    const validIds = ['warm-senior', 'humorous-friend', 'literary-youth', 'metal-rock-youth'];
+    if (saved && validIds.includes(saved)) {
+        return saved;
+    }
+    if (saved && !validIds.includes(saved)) {
+        // Clean up invalid value
+        localStorage.removeItem(storageKey);
+    }
+    return defaultValue;
+}
+
+function savePersonaPreference(personaId) {
+    localStorage.setItem('ai_chat_persona_id', personaId);
 }
 
 function toSvgDataUri(svgText) {
@@ -797,7 +851,8 @@ async function streamReply(apiBase, sessionId, userMessage, assistantNode) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             session_id: sessionId,
-            message: userMessage
+            message: userMessage,
+            persona_id: currentPersonaId || 'warm-senior'
         })
     });
 
