@@ -1056,6 +1056,10 @@ a {
         bottom: calc(52px + 8px + env(safe-area-inset-bottom, 0px));
         height: min(420px, calc(100vh - 120px));
     }
+
+    .ai-chat-persona-select {
+        max-width: 100px;
+    }
 }
 
 /* Very small phones (375px and below - iPhone SE size) */
@@ -1082,6 +1086,11 @@ a {
 
     .ai-chat-header {
         padding: 6px 8px;
+    }
+
+    .ai-chat-persona-select {
+        max-width: 90px;
+        font-size: 12px;
     }
 
     .ai-chat-form {
@@ -1560,6 +1569,42 @@ body {
 
 .btn-chat-close:hover svg {
     stroke: #ffffff;
+}
+
+/* Personality selector dropdown */
+.ai-chat-persona {
+    display: flex;
+    align-items: center;
+}
+
+.ai-chat-persona-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--radius-sm);  /* 4px */
+    color: var(--window-header-color);  /* #ffffff */
+    font-family: inherit;
+    font-size: 13px;
+    padding: 4px 8px;
+    cursor: pointer;
+    max-width: 120px;
+    text-overflow: ellipsis;
+    appearance: auto;  /* native OS dropdown */
+    -webkit-appearance: auto;
+}
+
+.ai-chat-persona-select:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.ai-chat-persona-select:focus-visible {
+    outline: 2px solid var(--highlight);
+    outline-offset: 1px;
+}
+
+.ai-chat-persona-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .ai-chat-messages {
