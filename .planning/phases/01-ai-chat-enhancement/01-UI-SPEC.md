@@ -1,10 +1,11 @@
 ---
 phase: 1
 slug: ai-chat-enhancement
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-04-26
+reviewed_at: 2026-04-26
 ---
 
 # Phase 1 -- AI Chat Enhancement -- UI Design Contract
@@ -58,7 +59,7 @@ Exceptions:
 |------|------|--------|-------------|-------|
 | Body | 14px | 400 | 1.5 | Chat messages, input text, persona labels |
 | Label | 13px | 400 | 1.4 | Metadata, character counter, suggestion buttons |
-| Heading | 14px | 700 (bold) | 1.3 | Chat name "AI 助手", greeting heading |
+| Heading | 16px | 700 (bold) | 1.3 | Chat name "AI 助手", greeting heading — 2px above Body for clear size-based hierarchy |
 | Small | 10px | 400 | 1.3 | Status indicator, char count at max, timestamp |
 
 Exception for `.content` body copy (blog posts): 16px at 1.7 line-height -- not applicable to chat widget.
@@ -275,7 +276,7 @@ All existing chat states and interactions must continue functioning unchanged:
 
 | Element | Copy | Notes |
 |---------|------|-------|
-| Primary CTA (greeting) | 确认 | Submit button for name input (action: register user name) |
+| Primary CTA (greeting) | 确认名字 | Submit button for name input (action: register user name) |
 | Greeting message | 你好！我是这个博客的 AI 助手。在开始之前，能告诉我你的名字吗？ | First AI message for new users (inline in chat, not a modal) |
 | Greeting input placeholder | 输入你的名字... | Matches existing input placeholder pattern "输入你的问题..." |
 | Greeting success transition | (silent -- greeting fades out, normal chat appears) | No toast; smooth inline transition |
@@ -296,6 +297,10 @@ All existing chat states and interactions must continue functioning unchanged:
 ---
 
 ## Layout Contract
+
+**Focal point:** The AI greeting message bubble (new users) / latest assistant message (returning users) is the primary visual anchor — positioned top-left in the messages area with background contrast against the dark messages container.
+
+**Visual hierarchy:** 1. AI greeting/message bubble, 2. Name input field (greeting) or chat input (normal), 3. Submit/send button, 4. Chat header with persona selector.
 
 ### Chat Header Layout (with Personality Dropdown)
 
@@ -341,8 +346,8 @@ All existing chat states and interactions must continue functioning unchanged:
 |------------|----------|
 | > 768px | Full layout as defined above; panel 380px wide |
 | 481px - 768px | Panel `min(380px, calc(100vw - 16px))`; toggle 56px |
-| 376px - 480px | Panel `calc(100vw - 16px)`; toggle 52px; header padding 6px 8px |
-| <= 375px | Panel `calc(100vw - 16px)`; toggle 48px; header padding 6px 8px; persona `max-width: 100px`; greeting form gap 6px |
+| 376px - 480px | Panel `calc(100vw - 16px)`; toggle 52px; header padding 4px 8px |
+| <= 375px | Panel `calc(100vw - 16px)`; toggle 48px; header padding 4px 8px; persona `max-width: 100px`; greeting form gap 4px |
 
 **Source:** Existing responsive breakpoints in `main.css` lines 919-1095 (matching existing pattern exactly).
 
@@ -361,11 +366,11 @@ No external component registries used. All UI is native HTML elements (`<select>
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PENDING
-- [ ] Dimension 2 Visuals: PENDING
-- [ ] Dimension 3 Color: PENDING
-- [ ] Dimension 4 Typography: PENDING
-- [ ] Dimension 5 Spacing: PENDING
-- [ ] Dimension 6 Registry Safety: PENDING
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-04-26
