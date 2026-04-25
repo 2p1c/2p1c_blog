@@ -30,7 +30,22 @@ function loadSystemPrompt() {
   }
 }
 
-const systemPrompt = loadSystemPrompt();
+import { estimateTokens, loadPersonasConfig, loadPostsIndex, composeSystemPrompt } from './src/prompt-composer.js';
+
+const personasConfig = loadPersonasConfig(path.resolve(__dirname, './config/personas.json'));
+const postsIndexText = loadPostsIndex(
+  process.env.POSTS_INDEX_PATH
+    ? (path.isAbsolute(process.env.POSTS_INDEX_PATH) ? process.env.POSTS_INDEX_PATH : path.resolve(__dirname, process.env.POSTS_INDEX_PATH))
+    : path.resolve(__dirname, './data/posts-index.json')
+);
+
+// composeSystemPrompt 的包装函数，捕获启动时加载的配置
+// 提供与原始 composeSystemPrompt 相同的对外接口
+// 在 /chat/stream 处理器中每次请求调用，实现动态性格切换
+function composePrompt(personaId) {
+  const baseIdentity = loadSystemPrompt();
+  return composeSystemPrompt(personaId, personasConfig, baseIdentity, postsIndexText);
+}
 
 const PORT = Number(process.env.PORT || 3001);
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || '';
@@ -766,7 +781,7 @@ app.post('/chat/clear', (req, res) => {
 });
 
 app.post('/chat/stream', async (req, res) => {
-  const { session_id: rawSessionId, message } = req.body || {};
+  const { session_id: rawSessionId, message, persona_id: personaId } = req.body || {};
 
   if (!isValidSessionId(rawSessionId)) {
     return sendJsonError(res, 400, 'BAD_REQUEST', 'session_id is required and must be a valid string');
@@ -799,7 +814,7 @@ app.post('/chat/stream', async (req, res) => {
   const upstreamPayload = {
     model: DEEPSEEK_MODEL,
     stream: true,
-    messages: buildUpstreamMessages(systemPrompt, contextMessages)
+    messages: buildUpstreamMessages(composePrompt(personaId || null), contextMessages)
   };
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache');
