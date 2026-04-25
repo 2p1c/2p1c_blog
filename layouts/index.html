@@ -1,0 +1,253 @@
+{{ define "head" }}
+{{ $homeCss := resources.Get "css/home.css" | resources.Minify | resources.Fingerprint }}
+<link rel="stylesheet" href="{{ $homeCss.RelPermalink }}">
+{{ end }}
+
+{{ define "main" }}
+<!-- Hero Welcome Section -->
+<section class="hero-welcome" aria-labelledby="hero-heading">
+  <h1 id="hero-heading">{{ .Site.Title }}</h1>
+  <div class="hero-subtitle">
+    {{ .Content }}
+  </div>
+  <div class="hero-quick-links">
+    <a href="/posts/" class="hero-quick-link">📝 全部文章</a>
+    <a href="/categories/" class="hero-quick-link">📂 分类浏览</a>
+    <a href="/tags/" class="hero-quick-link">🏷️ 标签云</a>
+    <a href="/about/" class="hero-quick-link">👤 关于我</a>
+  </div>
+</section>
+
+<!-- Latest Posts Section -->
+{{ $posts := where .Site.RegularPages "Type" "posts" }}
+{{ $latestPosts := $posts.ByDate.Reverse }}
+{{ $featuredCount := 3 }}
+
+{{ if gt (len $latestPosts) 0 }}
+<div class="window">
+  <div class="window-header">
+    <span class="window-title">✨ 最新文章</span>
+  </div>
+  <div class="window-content">
+    <!-- Featured Posts Grid (top 3) -->
+    {{ if ge (len $latestPosts) $featuredCount }}
+    <div class="featured-posts-grid">
+      {{ range first $featuredCount $latestPosts }}
+      <article class="featured-post-card">
+        <div class="featured-post-label">Latest</div>
+        <h3 class="featured-post-title">
+          <a href="{{ .Permalink }}">{{ .Title }}</a>
+        </h3>
+        <div class="featured-post-meta">
+          <span>📅 {{ .Date.Format "Jan 2, 2006" }}</span>
+          <span>📖 {{ .ReadingTime }} min read</span>
+          {{ with .Params.categories }}
+          <span>📂 {{ range $i, $cat := . }}{{ if $i }}, {{ end }}<a href="{{ "/categories/" | relLangURL }}{{ $cat | urlize }}" style="color: inherit;">{{ $cat }}</a>{{ end }}</span>
+          {{ end }}
+        </div>
+        {{ with .Description }}
+        <div class="featured-post-desc">{{ . | truncate 150 }}</div>
+        {{ else }}
+        {{ with .Summary }}
+        <div class="featured-post-desc">{{ . | plainify | truncate 150 }}</div>
+        {{ end }}
+        {{ end }}
+        {{ with .Params.tags }}
+        <div class="featured-post-tags">
+          {{ range . }}
+          <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" class="post-tag">{{ . }}</a>
+          {{ end }}
+        </div>
+        {{ end }}
+      </article>
+      {{ end }}
+    </div>
+    {{ end }}
+
+    <!-- Divider -->
+    <hr style="border: none; border-top: 1px solid oklch(88% 0.01 75); margin: var(--space-md) 0;">
+
+    <!-- View Options -->
+    <div class="view-options" role="group" aria-label="View options">
+      <span class="view-options-label">📋 视图:</span>
+      <button class="btn view-btn" data-view="list" id="listBtn" aria-pressed="true">列表</button>
+      <button class="btn view-btn" data-view="grid" id="gridBtn" aria-pressed="false">卡片</button>
+      <button class="btn view-btn" data-view="archive" id="archiveBtn" aria-pressed="false">归档</button>
+    </div>
+
+    <!-- Posts List View -->
+    <div id="listView" class="posts-view">
+      {{ if $posts }}
+      <ul class="post-list">
+        {{ range $latestPosts }}
+        <li class="post-list-item">
+          {{ with .Params.featured_image }}
+          <div class="post-thumbnail">
+            <img src="{{ . }}" alt="{{ $.Title }}">
+          </div>
+          {{ end }}
+
+          <div class="post-list-title">
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+          </div>
+
+          <div class="post-list-meta">
+            <span class="post-meta-item">📅 {{ .Date.Format "Jan 2, 2006" }}</span>
+            {{ with .Params.categories }}
+            <span class="post-meta-item">
+              📂 {{ range $i, $cat := . }}{{ if $i }}, {{ end }}<a href="{{ "/categories/" | relLangURL }}{{ $cat | urlize }}">{{ $cat }}</a>{{ end }}
+            </span>
+            {{ end }}
+            <span class="post-meta-item">📖 {{ .ReadingTime }} min read</span>
+          </div>
+
+          {{ with .Description }}
+          <div class="post-list-summary">{{ . | truncate 200 }}</div>
+          {{ else }}
+          {{ with .Summary }}
+          <div class="post-list-summary">{{ . | plainify | truncate 200 }}</div>
+          {{ end }}
+          {{ end }}
+
+          {{ with .Params.tags }}
+          <div class="post-tags">
+            {{ range . }}
+            <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" class="post-tag">{{ . }}</a>
+            {{ end }}
+          </div>
+          {{ end }}
+        </li>
+        {{ end }}
+      </ul>
+      {{ else }}
+      <div class="empty-state">
+        📭 暂无文章
+      </div>
+      {{ end }}
+    </div>
+
+    <!-- Posts Grid View -->
+    <div id="gridView" class="posts-view posts-view-hidden">
+      {{ if $posts }}
+      <div class="posts-grid">
+        {{ range $latestPosts }}
+        <div class="post-card">
+          {{ with .Params.featured_image }}
+          <div class="post-card-image">
+            <img src="{{ . }}" alt="{{ $.Title }}">
+          </div>
+          {{ end }}
+
+          <div class="card-title">
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+          </div>
+
+          <div class="card-meta">
+            📅 {{ .Date.Format "Jan 2, 2006" }} • 📖 {{ .ReadingTime }} min read
+          </div>
+
+          {{ with .Description }}
+          <div class="card-summary">{{ . | truncate 100 }}</div>
+          {{ else }}
+          {{ with .Summary }}
+          <div class="card-summary">{{ . | plainify | truncate 100 }}</div>
+          {{ end }}
+          {{ end }}
+        </div>
+        {{ end }}
+      </div>
+      {{ end }}
+    </div>
+
+    <!-- Archive View -->
+    <div id="archiveView" class="posts-view posts-view-hidden">
+      {{ if $posts }}
+      {{ range $latestPosts.GroupByDate "2006" }}
+      <div class="archive-year">{{ .Key }}</div>
+      {{ range .Pages.GroupByDate "January" }}
+      <div class="archive-month">
+        <strong>{{ .Key }}</strong> ({{ len .Pages }} 篇)
+        <ul class="archive-month-list">
+          {{ range .Pages.ByDate.Reverse }}
+          <li class="archive-item">
+            <span class="archive-date">{{ .Date.Format "02" }}</span> -
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+            {{ with .Params.categories }}
+            <span class="archive-category">
+              ({{ range $i, $cat := . }}{{ if $i }}, {{ end }}{{ $cat }}{{ end }})
+            </span>
+            {{ end }}
+          </li>
+          {{ end }}
+        </ul>
+      </div>
+      {{ end }}
+      {{ end }}
+      {{ end }}
+    </div>
+  </div>
+</div>
+
+<!-- Explore Section: Categories & Tags -->
+<div class="window">
+  <div class="window-header">
+    <span class="window-title">🗂️ 探索内容</span>
+  </div>
+  <div class="window-content">
+    {{ with .Site.Taxonomies.categories }}
+    <div class="section-title">📂 分类</div>
+    <div class="tag-cloud" style="margin-bottom: var(--space-md);">
+      {{ range $name, $pages := . }}
+      <a href="{{ "/categories/" | relLangURL }}{{ $name | urlize }}">
+        {{ $name | title }} ({{ len $pages }})
+      </a>
+      {{ end }}
+    </div>
+    {{ end }}
+
+    {{ with .Site.Taxonomies.tags }}
+    <div class="section-title">🏷️ 热门标签</div>
+    <div class="tag-cloud">
+      {{ range first 30 (.ByCount) }}
+      <a href="{{ "/tags/" | relLangURL }}{{ .Name | urlize }}">
+        {{ .Name }} ({{ .Count }})
+      </a>
+      {{ end }}
+    </div>
+    {{ end }}
+  </div>
+</div>
+{{ end }}
+
+<!-- View Toggle Script -->
+<script>
+function toggleView(viewType) {
+  document.getElementById('listView').classList.add('posts-view-hidden');
+  document.getElementById('gridView').classList.add('posts-view-hidden');
+  document.getElementById('archiveView').classList.add('posts-view-hidden');
+
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.classList.remove('view-active');
+    btn.setAttribute('aria-pressed', 'false');
+  });
+
+  document.getElementById(viewType + 'View').classList.remove('posts-view-hidden');
+  document.getElementById(viewType + 'Btn').classList.add('view-active');
+  document.getElementById(viewType + 'Btn').setAttribute('aria-pressed', 'true');
+
+  localStorage.setItem('preferredView', viewType);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const preferredView = localStorage.getItem('preferredView') || 'list';
+  toggleView(preferredView);
+
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const viewType = this.getAttribute('data-view');
+      toggleView(viewType);
+    });
+  });
+});
+</script>
+{{ end }}

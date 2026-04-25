@@ -1,0 +1,85 @@
+{{ define "head" }}
+{{ $homeCss := resources.Get "css/home.css" | resources.Minify | resources.Fingerprint }}
+<link rel="stylesheet" href="{{ $homeCss.RelPermalink }}">
+{{ end }}
+
+{{ define "main" }}
+<div class="window">
+  <div class="window-header">
+    <span class="window-title">📂 {{ .Data.Term | title }}</span>
+  </div>
+  <div class="window-content">
+    <div class="category-info" style="background: var(--bg-secondary); border: 1px inset var(--border-dark); padding: 8px; margin-bottom: 12px;">
+      <div style="font-weight: bold; margin-bottom: 4px;">
+        📂 {{ .Data.Term | title }}
+      </div>
+      <div style="font-size: 10px;">
+        {{ len .Pages }} 篇
+      </div>
+      {{ with .Description }}
+      <div style="font-size: 10px; margin-top: 4px; font-style: italic;">{{ . }}</div>
+      {{ end }}
+    </div>
+
+    {{ if .Pages }}
+    <ul class="post-list">
+      {{ range .Pages.ByDate.Reverse }}
+      <li class="post-list-item">
+        <div class="post-list-title">
+          <a href="{{ .Permalink }}">{{ .Title }}</a>
+        </div>
+
+        <div class="post-list-meta">
+          <span class="post-meta-item">📅 {{ .Date.Format "Jan 2, 2006" }}</span>
+          {{ with .Params.author }}
+          <span class="post-meta-item">👤 {{ . }}</span>
+          {{ end }}
+          <span class="post-meta-item">📖 {{ .ReadingTime }} min read</span>
+        </div>
+
+        {{ with .Description }}
+        <div class="post-list-summary">{{ . | truncate 200 }}</div>
+        {{ else }}
+        {{ with .Summary }}
+        <div class="post-list-summary">{{ . | plainify | truncate 200 }}</div>
+        {{ end }}
+        {{ end }}
+
+        {{ with .Params.tags }}
+        <div class="post-tags">
+          {{ range . }}
+          <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" class="post-tag">{{ . }}</a>
+          {{ end }}
+        </div>
+        {{ end }}
+      </li>
+      {{ end }}
+    </ul>
+    {{ else }}
+    <div class="empty-state">
+      📭 暂无文章
+    </div>
+    {{ end }}
+  </div>
+</div>
+
+<!-- Other Categories -->
+{{ if .Site.Taxonomies.categories }}
+<div class="window">
+  <div class="window-header">
+    <span class="window-title">📂 其他分类</span>
+  </div>
+  <div class="window-content">
+    <div class="tag-cloud">
+      {{ range $name, $pages := .Site.Taxonomies.categories }}
+      {{ if ne $name $.Data.Term }}
+      <a href="{{ "/categories/" | relLangURL }}{{ $name | urlize }}">
+        {{ $name | title }} ({{ len $pages }})
+      </a>
+      {{ end }}
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ end }}
+{{ end }}

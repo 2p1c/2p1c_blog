@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.Language.Lang | default "en" }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ block "title" . }}{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} - {{ .Site.Title }}{{ end }}{{ end }}</title>
+
+    <!-- Meta tags -->
+    {{ with .Description }}
+    <meta name="description" content="{{ . }}">
+    {{ else }}
+    <meta name="description" content="{{ .Site.Params.description | default .Site.Title }}">
+    {{ end }}
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ .Title }} | {{ .Site.Title }}">
+    <meta property="og:description" content="{{ .Description | default .Site.Params.description }}">
+    <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+    <meta property="og:url" content="{{ .Permalink }}">
+    {{ with .Params.featured_image }}
+    <meta property="og:image" content="{{ . | absURL }}">
+    {{ end }}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ .Title }} | {{ .Site.Title }}">
+    <meta name="twitter:description" content="{{ .Description | default .Site.Params.description }}">
+    {{ with .Params.featured_image }}
+    <meta name="twitter:image" content="{{ . | absURL }}">
+    {{ end }}
+
+    <!-- RSS -->
+    {{ range .AlternativeOutputFormats -}}
+    <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ $.Site.Title }}">
+    {{ end -}}
+
+    <!-- Fonts - Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ "favicon.ico" | relURL }}">
+
+    <!-- Styles -->
+    {{ $css := resources.Get "css/main.css" | resources.Minify | resources.Fingerprint }}
+    <link rel="stylesheet" href="{{ $css.RelPermalink }}">
+
+    <!-- Custom CSS -->
+    {{ with .Site.Params.custom_css }}
+    <style>{{ . | safeCSS }}</style>
+    {{ end }}
+
+    {{ block "head" . }}{{ end }}
+</head>
+<body>
+    <!-- Browser Chrome Effect -->
+    {{ if .Site.Params.show_browser_chrome }}
+    <div class="browser-chrome">
+        <div class="toolbar">
+            <span class="toolbar-button">Back</span>
+            <span class="toolbar-button">Forward</span>
+            <span class="toolbar-button">Refresh</span>
+            <span class="toolbar-button">Home</span>
+        </div>
+        <div class="address-bar">
+            {{ if .IsHome }}
+            {{ .Site.BaseURL }}
+            {{ else }}
+            {{ .Permalink }}
+            {{ end }}
+        </div>
+    </div>
+    {{ end }}
+
+    <div class="container">
+        <!-- Navigation -->
+        {{ partial "navigation.html" . }}
+
+        <!-- Site Header -->
+        <header class="site-header">
+            <div class="site-branding">
+                <a href="{{ .Site.BaseURL | relLangURL }}" class="site-title">{{ .Site.Title }}</a>
+                <div class="site-tagline">{{ .Site.Params.description }}</div>
+            </div>
+            <div class="site-social">
+                {{ with .Site.Params.social.twitter }}
+                <a href="https://twitter.com/{{ . }}" class="social-link" target="_blank" rel="noopener" aria-label="Twitter">𝕏</a>
+                {{ end }}
+                {{ with .Site.Params.social.github }}
+                <a href="{{ . }}" class="social-link" target="_blank" rel="noopener" aria-label="GitHub">⌨️</a>
+                {{ end }}
+                {{ with .Site.Params.social.email }}
+                <a href="mailto:{{ . }}" class="social-link" aria-label="Email">📧</a>
+                {{ end }}
+                {{ with .Site.Home.OutputFormats.Get "RSS" }}
+                <a href="{{ .RelPermalink }}" class="social-link" target="_blank" aria-label="RSS">📡</a>
+                {{ end }}
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            {{ block "main" . }}{{ end }}
+        </main>
+
+        <!-- Sidebar -->
+        {{ if .Site.Params.show_sidebar }}
+        <aside class="sidebar">
+            <div class="window-header">
+                <span class="window-title">Sidebar</span>
+            </div>
+            <div class="sidebar-content">
+                {{ partial "sidebar.html" . }}
+            </div>
+        </aside>
+        {{ end }}
+
+        <!-- Footer -->
+        {{ partial "footer.html" . }}
+    </div>
+
+    {{ partial "ai-chat.html" . }}
+
+    <!-- Status Bar -->
+    {{ if .Site.Params.show_status_bar }}
+    <div class="status-bar">
+        <div class="status-left">
+            <span class="status-item">{{ now.Format "Mon 02 Jan 2006" }}</span>
+            <span class="status-item">{{ now.Format "15:04" }}</span>
+        </div>
+        <div class="status-right">
+            <span class="status-item">{{ .Site.Title }}</span>
+            {{ if .IsPage }}
+            <span class="status-item">{{ .WordCount }} words</span>
+            {{ end }}
+        </div>
+    </div>
+    {{ end }}
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" aria-label="回到顶部">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    </button>
+
+    <!-- JavaScript -->
+    {{ $js := resources.Get "js/main.js" }}
+    {{ if $js }}
+    {{ $js := $js | resources.Minify | resources.Fingerprint }}
+    <script src="{{ $js.RelPermalink }}"></script>
+    {{ end }}
+
+    <!-- Custom JavaScript -->
+    {{ with .Site.Params.custom_js }}
+    <script>{{ . | safeJS }}</script>
+    {{ end }}
+
+    <!-- Analytics -->
+    {{ template "_internal/google_analytics.html" . }}
+
+    {{ block "scripts" . }}{{ end }}
+
+    <!-- Back to Top Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var btn = document.getElementById('backToTop');
+      if (!btn) return;
+
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 400) {
+          btn.classList.add('visible');
+        } else {
+          btn.classList.remove('visible');
+        }
+      });
+
+      btn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    </script>
+</body>
+</html>
