@@ -14,28 +14,33 @@
   --bg-secondary: oklch(93% 0.01 75);
   --bg-window: oklch(99% 0.004 75);
 
-  /* Warm accent - terracotta/brick instead of cool blue for certain elements */
-  --warm-accent: oklch(58% 0.18 35);
-  --warm-accent-light: oklch(72% 0.12 35);
-  --warm-glow: oklch(58% 0.18 35 / 0.15);
+  /* Warm accent - copper/terracotta as PRIMARY accent */
+  --warm-accent: oklch(55% 0.18 35);
+  --warm-accent-light: oklch(70% 0.12 35);
+  --warm-glow: oklch(55% 0.18 35 / 0.18);
 
-  /* Keep window header blue (signature vintage look) but richer */
-  --window-header-gradient-start: oklch(62% 0.18 250);
-  --window-header-gradient-mid: oklch(52% 0.16 255);
-  --window-header-gradient-end: oklch(42% 0.14 260);
+  /* Warm accent for text links (slightly deeper for readability) */
+  --warm-link: oklch(45% 0.16 35);
+  --warm-link-hover: oklch(50% 0.20 35);
+
+  /* Deep warm charcoal headers - sophisticated vintage feel */
+  --window-header-gradient-start: oklch(32% 0.025 70);
+  --window-header-gradient-mid: oklch(26% 0.02 70);
+  --window-header-gradient-end: oklch(20% 0.02 70);
 
   /* Warm text */
   --text-primary: oklch(18% 0.02 75);
-  --text-secondary: oklch(45% 0.03 75);
-  --text-link: oklch(48% 0.16 260);
+  --text-secondary: oklch(42% 0.03 75);
+  --text-link: var(--warm-link);
+  --highlight: var(--warm-accent);
 
   /* Card and surface */
   --card-bg: oklch(99% 0.004 75);
-  --card-shadow: oklch(50% 0.02 75 / 0.08);
-  --card-hover-shadow: oklch(50% 0.02 75 / 0.15);
+  --card-shadow: oklch(45% 0.02 75 / 0.08);
+  --card-hover-shadow: oklch(45% 0.02 75 / 0.15);
 
-  /* Hero gradient */
-  --hero-overlay: oklch(30% 0.04 260 / 0.4);
+  /* Hero gradient overlay */
+  --hero-overlay: oklch(15% 0.02 70 / 0.3);
 
   /* Heading font stack */
   --font-heading: 'Playfair Display', 'Noto Serif SC', Georgia, 'Times New Roman', serif;
@@ -62,18 +67,22 @@
   :root {
     --bg-primary: oklch(18% 0.01 75);
     --bg-secondary: oklch(22% 0.015 75);
-    --bg-window: oklch(25% 0.015 75);
+    --bg-window: oklch(26% 0.015 75);
     --text-primary: oklch(88% 0.01 75);
-    --text-secondary: oklch(62% 0.02 75);
-    --text-link: oklch(72% 0.14 250);
-    --card-bg: oklch(27% 0.015 75);
+    --text-secondary: oklch(60% 0.02 75);
+    --text-link: var(--warm-link);
+    --card-bg: oklch(28% 0.015 75);
     --card-shadow: oklch(0% 0 0 / 0.3);
     --card-hover-shadow: oklch(0% 0 0 / 0.5);
-    --window-header-gradient-start: oklch(48% 0.16 255);
-    --window-header-gradient-mid: oklch(40% 0.14 260);
-    --window-header-gradient-end: oklch(32% 0.12 265);
-    --warm-accent: oklch(68% 0.16 35);
-    --warm-glow: oklch(68% 0.16 35 / 0.15);
+    --window-header-gradient-start: oklch(35% 0.025 70);
+    --window-header-gradient-mid: oklch(28% 0.02 70);
+    --window-header-gradient-end: oklch(22% 0.02 70);
+    --warm-accent: oklch(65% 0.16 35);
+    --warm-accent-light: oklch(75% 0.10 35);
+    --warm-link: oklch(72% 0.14 35);
+    --warm-link-hover: oklch(78% 0.16 35);
+    --warm-glow: oklch(65% 0.16 35 / 0.2);
+    --highlight: var(--warm-accent);
   }
 }
 
@@ -515,13 +524,10 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .view-options .btn.view-active {
-  background: linear-gradient(135deg,
-    var(--window-header-gradient-start),
-    var(--window-header-gradient-end)
-  );
+  background: var(--warm-accent);
   color: white;
-  border-color: transparent;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  border-color: var(--warm-accent);
+  box-shadow: 0 2px 8px var(--warm-glow);
 }
 
 /* --- Featured Posts Section --- */
@@ -700,13 +706,10 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .pagination .current {
-  background: linear-gradient(135deg,
-    var(--window-header-gradient-start),
-    var(--window-header-gradient-end)
-  );
+  background: var(--warm-accent);
   color: white;
-  border-color: transparent;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  border-color: var(--warm-accent);
+  box-shadow: 0 2px 8px var(--warm-glow);
 }
 
 /* --- Section Title Refinements --- */
@@ -731,6 +734,25 @@ h1, h2, h3, h4, h5, h6,
   padding: 8px 16px;
   border-radius: var(--radius-sm);
   font-size: 13px;
+}
+
+/* Post meta links */
+.post-meta-item a {
+  color: var(--warm-link);
+  transition: color 0.2s ease;
+}
+
+.post-meta-item a:hover {
+  color: var(--warm-link-hover);
+  text-decoration: underline;
+}
+
+/* Content area links (for any homepage content) */
+.hero-welcome a {
+  color: var(--warm-link);
+}
+.hero-welcome a:hover {
+  color: var(--warm-link-hover);
 }
 
 /* --- Sidebar Refinements --- */
