@@ -1,0 +1,232 @@
+{{ define "head" }}
+{{ $homeCss := resources.Get "css/home.css" | resources.Minify | resources.Fingerprint }}
+<link rel="stylesheet" href="{{ $homeCss.RelPermalink }}">
+{{ end }}
+
+{{ define "main" }}
+<article class="window">
+  <div class="window-header">
+    <span class="window-title">{{ .Title }}</span>
+  </div>
+  <div class="window-content">
+    <header class="content-header">
+      <h1 class="post-title">{{ .Title }}</h1>
+
+      {{ if .IsPage }}
+      <div class="post-meta">
+        <span class="post-meta-item">
+          📅 {{ .Date.Format "Jan 2, 2006" }}
+        </span>
+        {{ if ne .Date .Lastmod }}
+        <span class="post-meta-item">
+          🔄 {{ .Lastmod.Format "Jan 2, 2006" }}
+        </span>
+        {{ end }}
+        <span class="post-meta-item">
+          📖 {{ .ReadingTime }} min read
+        </span>
+        <span class="post-meta-item">
+          📊 {{ .WordCount }} words
+        </span>
+
+        {{ with .Params.author }}
+        <span class="post-meta-item">
+          👤 {{ . }}
+        </span>
+        {{ end }}
+
+        {{ with .Params.categories }}
+        <span class="post-meta-item">
+          📂
+          {{ range $i, $cat := . }}
+            {{ if $i }}, {{ end }}
+            <a href="{{ "/categories/" | relLangURL }}{{ $cat | urlize }}">{{ $cat }}</a>
+          {{ end }}
+        </span>
+        {{ end }}
+
+        {{ with .Params.tags }}
+        <span class="post-meta-item">
+          🏷️
+          {{ range $i, $tag := . }}
+            {{ if $i }}, {{ end }}
+            <a href="{{ "/tags/" | relLangURL }}{{ $tag | urlize }}">{{ $tag }}</a>
+          {{ end }}
+        </span>
+        {{ end }}
+
+        {{ with .Params.series }}
+        <span class="post-meta-item">
+          📚
+          {{ range $i, $ser := . }}
+            {{ if $i }}, {{ end }}
+            <a href="{{ "/series/" | relLangURL }}{{ $ser | urlize }}">{{ $ser }}</a>
+          {{ end }}
+        </span>
+        {{ end }}
+      </div>
+      {{ end }}
+
+      {{ with .Description }}
+      <div class="post-description">
+        {{ . }}
+      </div>
+      {{ end }}
+
+      {{ with .Params.featured_image }}
+      <div class="featured-image">
+        <img src="{{ . }}" alt="{{ $.Title }}">
+      </div>
+      {{ end }}
+    </header>
+
+    <!-- Inline TOC -->
+    {{ if and .Params.toc (.TableOfContents) }}
+    <nav class="heading-nav" aria-label="Heading navigation">
+      {{ .TableOfContents }}
+    </nav>
+    {{ end }}
+
+    <!-- Content with TOC sidebar -->
+    {{ if and .Params.toc (.TableOfContents) }}
+    <div class="post-with-sidebar">
+      <aside class="toc-sidebar" id="toc-sidebar">
+        <button class="toc-toggle" id="toc-toggle" aria-expanded="false" aria-controls="toc-list">
+          <span class="toc-toggle-icon">📋</span>
+          <span class="toc-toggle-text">目录</span>
+          <span class="toc-toggle-arrow">▾</span>
+        </button>
+        <nav class="toc-list" id="toc-list" hidden>
+          <div class="toc-title">📋 Table of Contents</div>
+          {{ .TableOfContents }}
+        </nav>
+      </aside>
+      <div class="post-content">
+        {{ .Content }}
+      </div>
+    </div>
+    {{ else }}
+    <div class="content">
+      {{ .Content }}
+    </div>
+    {{ end }}
+
+    <!-- Post Footer -->
+    <footer class="post-footer">
+      <!-- Social Sharing -->
+      {{ if .Site.Params.show_sharing }}
+      <div class="sharing">
+        <div class="sharing-title">📤 Share this post:</div>
+        <div class="sharing-buttons">
+          <a href="https://twitter.com/intent/tweet?text={{ .Title }}&url={{ .Permalink }}"
+             target="_blank" class="btn">Twitter</a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u={{ .Permalink }}"
+             target="_blank" class="btn">Facebook</a>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ .Permalink }}"
+             target="_blank" class="btn">LinkedIn</a>
+          <a href="mailto:?subject={{ .Title }}&body={{ .Permalink }}"
+             class="btn">Email</a>
+        </div>
+      </div>
+      {{ end }}
+
+      <!-- Series Navigation -->
+      {{ with .Params.series }}
+      {{ $series := index . 0 }}
+      {{ $seriesPages := where $.Site.RegularPages ".Params.series" "intersect" . }}
+      {{ if gt (len $seriesPages) 1 }}
+      <div class="series-nav">
+        <div class="series-nav-title">📚 More in "{{ $series }}" series:</div>
+        <ul>
+          {{ range $seriesPages.ByDate }}
+          <li>
+            {{ if eq .Permalink $.Permalink }}
+            <strong>{{ .Title }}</strong> (current)
+            {{ else }}
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+            {{ end }}
+            <span class="text-secondary"> - {{ .Date.Format "Jan 2" }}</span>
+          </li>
+          {{ end }}
+        </ul>
+      </div>
+      {{ end }}
+      {{ end }}
+
+      <!-- Related Posts -->
+      {{ $related := .Site.RegularPages.Related . | first 3 }}
+      {{ if $related }}
+      <div class="related-posts">
+        <div class="related-posts-title">🔗 相关文章:</div>
+        <ul>
+          {{ range $related }}
+          <li>
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+            <span class="text-secondary"> - {{ .Date.Format "Jan 2" }}</span>
+          </li>
+          {{ end }}
+        </ul>
+      </div>
+      {{ end }}
+
+      <!-- Edit Link -->
+      {{ if .Site.Params.edit_page }}
+      <div class="edit-link">
+        {{ with .Site.Params.repo_url }}
+        <a href="{{ . }}/edit/main/content/{{ $.File.Path }}" target="_blank">
+          ✏️ 在 GitHub 上编辑此页
+        </a>
+        {{ end }}
+      </div>
+      {{ end }}
+    </footer>
+  </div>
+</article>
+
+<!-- Post Navigation -->
+<nav class="post-nav">
+  {{ with .PrevInSection }}
+  <div class="window">
+    <div class="window-header">
+      <span class="window-title">← 上一篇</span>
+    </div>
+    <div class="window-content">
+      <a href="{{ .Permalink }}" class="post-nav-link">
+        <div class="post-nav-link-title">{{ .Title }}</div>
+        <div class="post-nav-link-date">{{ .Date.Format "Jan 2, 2006" }}</div>
+      </a>
+    </div>
+  </div>
+  {{ else }}
+  <div></div>
+  {{ end }}
+
+  {{ with .NextInSection }}
+  <div class="window">
+    <div class="window-header">
+      <span class="window-title">下一篇 →</span>
+    </div>
+    <div class="window-content">
+      <a href="{{ .Permalink }}" class="post-nav-link">
+        <div class="post-nav-link-title">{{ .Title }}</div>
+        <div class="post-nav-link-date">{{ .Date.Format "Jan 2, 2006" }}</div>
+      </a>
+    </div>
+  </div>
+  {{ end }}
+</nav>
+
+<!-- Comments -->
+{{ if .Site.Config.Services.Disqus.Shortname }}
+<div class="comments">
+  <div class="window">
+    <div class="window-header">
+      <span class="window-title">💬 评论</span>
+    </div>
+    <div class="window-content">
+      {{ template "_internal/disqus.html" . }}
+    </div>
+  </div>
+</div>
+{{ end }}
+{{ end }}

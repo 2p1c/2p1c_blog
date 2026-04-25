@@ -89,12 +89,31 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 CREATE INDEX IF NOT EXISTS idx_messages_session_id_created_at ON messages(session_id, created_at);
+
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id TEXT PRIMARY KEY,
+  client_uuid TEXT UNIQUE,
+  ip_hash TEXT,
+  name TEXT,
+  created_at INTEGER NOT NULL,
+  last_seen_at INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_profiles_client_uuid ON user_profiles(client_uuid);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_ip_hash ON user_profiles(ip_hash);
 `);
 
+// Migration: add user_id column to sessions if not exists
+try {
+  db.exec("ALTER TABLE sessions ADD COLUMN user_id TEXT REFERENCES user_profiles(id)");
+} catch {
+  // Column already exists - ignore
+}
+
 const upsertSessionStmt = db.prepare(`
-INSERT INTO sessions (id, created_at, updated_at)
-VALUES (@id, @createdAt, @updatedAt)
-ON CONFLICT(id) DO UPDATE SET updated_at = excluded.updated_at
+INSERT INTO sessions (id, created_at, updated_at, user_id)
+VALUES (@id, @createdAt, @updatedAt, @userId)
+ON CONFLICT(id) DO UPDATE SET updated_at = excluded.updated_at, user_id = COALESCE(excluded.user_id, user_id)
 `);
 
 const insertMessageStmt = db.prepare(`
@@ -112,15 +131,53 @@ LIMIT ?
 
 const clearMessagesStmt = db.prepare('DELETE FROM messages WHERE session_id = ?');
 
-const ensureSessionAndInsertMessage = db.transaction((sessionId, role, content) => {
+// User profile prepared statements
+const upsertUserByUuidStmt = db.prepare(`
+INSERT INTO user_profiles (id, client_uuid, ip_hash, name, created_at, last_seen_at)
+VALUES (@id, @clientUuid, @ipHash, @name, @createdAt, @lastSeenAt)
+ON CONFLICT(client_uuid) DO UPDATE SET
+  last_seen_at = excluded.last_seen_at,
+  ip_hash = COALESCE(excluded.ip_hash, user_profiles.ip_hash)
+`);
+
+const findUserByUuidStmt = db.prepare('SELECT * FROM user_profiles WHERE client_uuid = ?');
+
+const findUserBySessionStmt = db.prepare(`
+SELECT u.* FROM user_profiles u
+JOIN sessions s ON s.user_id = u.id
+WHERE s.id = ?
+`);
+
+const updateUserNameStmt = db.prepare('UPDATE user_profiles SET name = ?, last_seen_at = ? WHERE client_uuid = ?');
+
+const countUserSessionsStmt = db.prepare('SELECT COUNT(*) AS count FROM sessions WHERE user_id = ?');
+
+// Generate a short UUID
+function generateUuid() {
+  return 'usr_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+}
+
+function hashIp(ip) {
+  if (!ip) return null;
+  // Simple hash for privacy - not cryptographic, just pseudonymization
+  let hash = 0;
+  for (let i = 0; i < ip.length; i++) {
+    const char = ip.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return 'ip_' + Math.abs(hash).toString(36);
+}
+
+const ensureSessionAndInsertMessage = db.transaction((sessionId, role, content, userId) => {
   const now = Date.now();
-  upsertSessionStmt.run({ id: sessionId, createdAt: now, updatedAt: now });
+  upsertSessionStmt.run({ id: sessionId, createdAt: now, updatedAt: now, userId: userId || null });
   insertMessageStmt.run({ sessionId, role, content, createdAt: now });
 });
 
 const clearSessionMessages = db.transaction((sessionId) => {
   const now = Date.now();
-  upsertSessionStmt.run({ id: sessionId, createdAt: now, updatedAt: now });
+  upsertSessionStmt.run({ id: sessionId, createdAt: now, updatedAt: now, userId: null });
   clearMessagesStmt.run(sessionId);
 });
 
@@ -765,8 +822,77 @@ app.post('/chat/clear', (req, res) => {
   }
 });
 
+/* --- User Profile Endpoints --- */
+
+app.get('/chat/profile', (req, res) => {
+  const uuid = (req.query.uuid || '').trim();
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || '';
+  const ipHashed = hashIp(ip);
+
+  let user = null;
+  if (uuid) {
+    user = findUserByUuidStmt.get(uuid);
+  }
+
+  if (!user && ipHashed) {
+    user = db.prepare('SELECT * FROM user_profiles WHERE ip_hash = ? ORDER BY last_seen_at DESC LIMIT 1').get(ipHashed);
+  }
+
+  if (!user) {
+    return res.json({ known: false });
+  }
+
+  db.prepare('UPDATE user_profiles SET last_seen_at = ? WHERE id = ?').run(Date.now(), user.id);
+  const sessionCount = countUserSessionsStmt.get(user.id)?.count || 0;
+
+  const lastSession = db.prepare(`
+    SELECT id, created_at, updated_at FROM sessions
+    WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1
+  `).get(user.id);
+
+  return res.json({
+    known: true,
+    user: { id: user.id, name: user.name || null, sessionCount },
+    last_session: lastSession || null
+  });
+});
+
+app.post('/chat/register', (req, res) => {
+  const { uuid, name } = req.body || {};
+
+  if (!uuid || typeof uuid !== 'string' || uuid.length < 8) {
+    return sendJsonError(res, 400, 'BAD_REQUEST', 'uuid is required');
+  }
+
+  const cleanName = (name || '').trim().slice(0, 50);
+  if (!cleanName) {
+    return sendJsonError(res, 400, 'BAD_REQUEST', 'name is required');
+  }
+
+  try {
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || '';
+    const ipHashed = hashIp(ip);
+    const now = Date.now();
+    const userId = generateUuid();
+
+    upsertUserByUuidStmt.run({
+      id: userId,
+      clientUuid: uuid,
+      ipHash: ipHashed,
+      name: cleanName,
+      createdAt: now,
+      lastSeenAt: now
+    });
+
+    return res.json({ ok: true, user: { id: userId, name: cleanName } });
+  } catch (error) {
+    console.error('register user failed:', error);
+    return sendJsonError(res, 500, 'UPSTREAM_ERROR', 'failed to register user');
+  }
+});
+
 app.post('/chat/stream', async (req, res) => {
-  const { session_id: rawSessionId, message } = req.body || {};
+  const { session_id: rawSessionId, message, user_id: rawUserId } = req.body || {};
 
   if (!isValidSessionId(rawSessionId)) {
     return sendJsonError(res, 400, 'BAD_REQUEST', 'session_id is required and must be a valid string');
@@ -786,9 +912,14 @@ app.post('/chat/stream', async (req, res) => {
 
   const sessionId = rawSessionId.trim();
   const userMessage = message.trim();
+  const userId = (rawUserId || '').trim() || null;
+
+  if (userId) {
+    upsertSessionStmt.run({ id: sessionId, createdAt: Date.now(), updatedAt: Date.now(), userId });
+  }
 
   try {
-    ensureSessionAndInsertMessage(sessionId, 'user', userMessage);
+    ensureSessionAndInsertMessage(sessionId, 'user', userMessage, userId);
   } catch (error) {
     console.error('save user message failed:', error);
     return sendJsonError(res, 500, 'UPSTREAM_ERROR', 'failed to persist message');
@@ -796,10 +927,19 @@ app.post('/chat/stream', async (req, res) => {
 
   const contextMessages = selectContextStmt.all(sessionId, MAX_CONTEXT_MESSAGES);
 
+  // Build system prompt with user context
+  let userSystemPrompt = systemPrompt;
+  if (userId) {
+    const userProfile = findUserByUuidStmt.get(userId) || findUserBySessionStmt.get(sessionId);
+    if (userProfile?.name) {
+      userSystemPrompt = `当前正在和你对话的用户叫「${userProfile.name}」。请用亲切的语气称呼用户的名字。\n\n${systemPrompt}`;
+    }
+  }
+
   const upstreamPayload = {
     model: DEEPSEEK_MODEL,
     stream: true,
-    messages: buildUpstreamMessages(systemPrompt, contextMessages)
+    messages: buildUpstreamMessages(userSystemPrompt, contextMessages)
   };
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache');
@@ -858,7 +998,7 @@ app.post('/chat/stream', async (req, res) => {
     }
 
     if (finalAssistantReply) {
-      ensureSessionAndInsertMessage(sessionId, 'assistant', finalAssistantReply);
+      ensureSessionAndInsertMessage(sessionId, 'assistant', finalAssistantReply, userId);
     }
 
     writeSseEvent(res, 'done', {

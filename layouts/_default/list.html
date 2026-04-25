@@ -1,0 +1,196 @@
+{{ define "head" }}
+{{ $homeCss := resources.Get "css/home.css" | resources.Minify | resources.Fingerprint }}
+<link rel="stylesheet" href="{{ $homeCss.RelPermalink }}">
+{{ end }}
+
+{{ define "main" }}
+
+<!-- All Posts - Show on posts section page -->
+{{ if and (eq .Section "posts") (not .IsHome) }}
+<div class="window">
+  <div class="window-header">
+    <span class="window-title">📝 全部文章</span>
+  </div>
+  <div class="window-content">
+    {{ if .Pages }}
+    <div class="view-options" role="group" aria-label="View options">
+      <span class="view-options-label">📋 视图:</span>
+      <button class="btn view-btn" data-view="list" id="listBtn" aria-pressed="true">列表</button>
+      <button class="btn view-btn" data-view="grid" id="gridBtn" aria-pressed="false">卡片</button>
+      <button class="btn view-btn" data-view="archive" id="archiveBtn" aria-pressed="false">归档</button>
+    </div>
+
+    <!-- Posts List View -->
+    <div id="listView" class="posts-view">
+      <ul class="post-list">
+        {{ range .Pages.ByDate.Reverse }}
+        <li class="post-list-item">
+          <div class="post-list-title">
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+          </div>
+          <div class="post-list-meta">
+            <span class="post-meta-item">📅 {{ .Date.Format "Jan 2, 2006" }}</span>
+            {{ with .Params.categories }}
+            <span class="post-meta-item">
+              📂 {{ range $i, $cat := . }}{{ if $i }}, {{ end }}<a href="{{ "/categories/" | relLangURL }}{{ $cat | urlize }}">{{ $cat }}</a>{{ end }}
+            </span>
+            {{ end }}
+            <span class="post-meta-item">📖 {{ .ReadingTime }} min read</span>
+          </div>
+          {{ with .Description }}
+          <div class="post-list-summary">{{ . | truncate 200 }}</div>
+          {{ else }}
+          {{ with .Summary }}
+          <div class="post-list-summary">{{ . | plainify | truncate 200 }}</div>
+          {{ end }}
+          {{ end }}
+          {{ with .Params.tags }}
+          <div class="post-tags">
+            {{ range . }}
+            <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" class="post-tag">{{ . }}</a>
+            {{ end }}
+          </div>
+          {{ end }}
+        </li>
+        {{ end }}
+      </ul>
+    </div>
+
+    <!-- Posts Grid View -->
+    <div id="gridView" class="posts-view posts-view-hidden">
+      <div class="posts-grid">
+        {{ range .Pages.ByDate.Reverse }}
+        <div class="post-card">
+          <div class="card-title">
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+          </div>
+          <div class="card-meta">
+            📅 {{ .Date.Format "Jan 2, 2006" }} • 📖 {{ .ReadingTime }} min read
+          </div>
+          {{ with .Description }}
+          <div class="card-summary">{{ . | truncate 100 }}</div>
+          {{ else }}
+          {{ with .Summary }}
+          <div class="card-summary">{{ . | plainify | truncate 100 }}</div>
+          {{ end }}
+          {{ end }}
+        </div>
+        {{ end }}
+      </div>
+    </div>
+
+    <!-- Archive View -->
+    <div id="archiveView" class="posts-view posts-view-hidden">
+      {{ range .Pages.GroupByDate "2006" }}
+      <div class="archive-year">{{ .Key }}</div>
+      {{ range .Pages.GroupByDate "January" }}
+      <div class="archive-month">
+        <strong>{{ .Key }}</strong> ({{ len .Pages }} 篇)
+        <ul class="archive-month-list">
+          {{ range .Pages.ByDate.Reverse }}
+          <li class="archive-item">
+            <span class="archive-date">{{ .Date.Format "02" }}</span> -
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+            {{ with .Params.categories }}
+            <span class="archive-category">
+              ({{ range $i, $cat := . }}{{ if $i }}, {{ end }}{{ $cat }}{{ end }})
+            </span>
+            {{ end }}
+          </li>
+          {{ end }}
+        </ul>
+      </div>
+      {{ end }}
+      {{ end }}
+    </div>
+    {{ else }}
+    <div class="empty-state">
+      📭 暂无文章
+    </div>
+    {{ end }}
+  </div>
+</div>
+{{ end }}
+
+<!-- Taxonomy Pages (Categories/Tags) -->
+{{ if or (eq .Kind "taxonomy") (eq .Kind "term") }}
+<div class="window">
+  <div class="window-header">
+    <span class="window-title">
+      {{ if eq .Kind "taxonomy" }}📂 {{ .Title }}{{ else }}🏷️ {{ .Data.Term }}{{ end }}
+    </span>
+  </div>
+  <div class="window-content">
+    {{ if .Pages }}
+    <ul class="post-list">
+      {{ range .Pages.ByDate.Reverse }}
+      <li class="post-list-item">
+        <div class="post-list-title">
+          <a href="{{ .Permalink }}">{{ .Title }}</a>
+        </div>
+        <div class="post-list-meta">
+          <span class="post-meta-item">📅 {{ .Date.Format "Jan 2, 2006" }}</span>
+          {{ with .Params.categories }}
+          <span class="post-meta-item">
+            📂 {{ range $i, $cat := . }}{{ if $i }}, {{ end }}<a href="{{ "/categories/" | relLangURL }}{{ $cat | urlize }}">{{ $cat }}</a>{{ end }}
+          </span>
+          {{ end }}
+          <span class="post-meta-item">📖 {{ .ReadingTime }} min</span>
+        </div>
+        {{ with .Description }}
+        <div class="post-list-summary">{{ . | truncate 200 }}</div>
+        {{ else }}
+        {{ with .Summary }}
+        <div class="post-list-summary">{{ . | plainify | truncate 200 }}</div>
+        {{ end }}
+        {{ end }}
+        {{ with .Params.tags }}
+        <div class="post-tags">
+          {{ range . }}
+          <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}" class="post-tag">{{ . }}</a>
+          {{ end }}
+        </div>
+        {{ end }}
+      </li>
+      {{ end }}
+    </ul>
+    {{ else }}
+    <div class="empty-state">
+      📭 暂无文章
+    </div>
+    {{ end }}
+  </div>
+</div>
+{{ end }}
+
+<script>
+function toggleView(viewType) {
+  document.getElementById('listView').classList.add('posts-view-hidden');
+  document.getElementById('gridView').classList.add('posts-view-hidden');
+  document.getElementById('archiveView').classList.add('posts-view-hidden');
+
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.classList.remove('view-active');
+    btn.setAttribute('aria-pressed', 'false');
+  });
+
+  document.getElementById(viewType + 'View').classList.remove('posts-view-hidden');
+  document.getElementById(viewType + 'Btn').classList.add('view-active');
+  document.getElementById(viewType + 'Btn').setAttribute('aria-pressed', 'true');
+
+  localStorage.setItem('preferredView', viewType);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const preferredView = localStorage.getItem('preferredView') || 'list';
+  toggleView(preferredView);
+
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const viewType = this.getAttribute('data-view');
+      toggleView(viewType);
+    });
+  });
+});
+</script>
+{{ end }}
