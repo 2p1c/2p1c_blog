@@ -49,6 +49,30 @@
     </header>
 
     <div id="ai-chat-messages" class="ai-chat-messages" aria-live="polite">
+      <div id="ai-chat-greeting" class="ai-chat-greeting" hidden>
+        <div class="ai-chat-msg ai-chat-msg-assistant">
+          <div class="ai-chat-msg-avatar">
+            <img id="ai-chat-greeting-avatar" alt="AI avatar" />
+          </div>
+          <div class="ai-chat-msg-body">
+            你好！我是这个博客的 AI 助手。在开始之前，能告诉我你的名字吗？
+          </div>
+        </div>
+        <form id="ai-chat-greeting-form" class="ai-chat-greeting-form">
+          <div class="ai-chat-input-wrapper">
+            <label for="ai-chat-greeting-input" class="sr-only">输入你的名字</label>
+            <input
+              id="ai-chat-greeting-input"
+              type="text"
+              placeholder="输入你的名字..."
+              maxlength="50"
+              autocomplete="given-name"
+            />
+          </div>
+          <button id="ai-chat-greeting-submit" type="submit" class="btn-send" disabled>确认名字</button>
+        </form>
+        <p id="ai-chat-greeting-error" class="ai-chat-greeting-error" hidden></p>
+      </div>
       <div class="ai-chat-welcome" role="status">
         <svg class="ai-chat-welcome-icon" width="32" height="32" viewBox="0 0 24 24" fill="none">
           <defs>

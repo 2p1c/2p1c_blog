@@ -1101,6 +1101,15 @@ a {
         padding: 6px 10px;
         font-size: 14px;
     }
+
+    .ai-chat-greeting-form {
+        gap: 4px;
+    }
+
+    .ai-chat-greeting-form input {
+        padding: 6px 10px;
+        font-size: 14px;
+    }
 }
 
 /* Status Bar */
@@ -1684,6 +1693,55 @@ body {
 .ai-chat-welcome-text {
     font-size: 14px;
     font-weight: 500;
+}
+
+/* Inline greeting for new users */
+.ai-chat-greeting {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: ai-chat-welcome-fade-in 0.4s ease-out;
+}
+
+.ai-chat-greeting[hidden] {
+    display: none;
+}
+
+.ai-chat-greeting-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ai-chat-greeting-form .ai-chat-input-wrapper {
+    flex: 1;
+}
+
+.ai-chat-greeting-form input {
+    width: 100%;
+    border: 1px solid var(--border-dark);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-primary);
+    background: var(--bg-window);
+    font-family: inherit;
+}
+
+.ai-chat-greeting-form input:focus {
+    outline: none;
+    border-color: var(--highlight);
+    box-shadow: 0 0 0 3px var(--chat-focus-ring);
+}
+
+.ai-chat-greeting-error {
+    color: #ef4444;
+    font-size: 12px;
+    margin: 0;
+}
+
+.ai-chat-greeting-error[hidden] {
+    display: none;
 }
 
 /* Quick suggestions */

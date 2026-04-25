@@ -570,6 +570,10 @@ function initAiChatWidget() {
         if (personaDropdownOpen) {
             return;
         }
+        // Don't close panel during greeting flow
+        if (isGreetingActive()) {
+            return;
+        }
         closePanel();
     });
 
@@ -653,6 +657,22 @@ function initAiChatWidget() {
         });
     }
 
+    // Greeting flow: fetch user profile for returning users
+    const userUuid = getOrCreateUserUuid();
+    let userProfileId = getUserProfileId();
+
+    // Pre-fetch user profile on init (returning users)
+    if (userProfileId) {
+        fetch(`${apiBase.replace('/stream', '').replace('/clear', '')}/profile?uuid=${encodeURIComponent(userProfileId)}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.profile && data.profile.display_name) {
+                    userProfileId = data.profile.id;
+                }
+            })
+            .catch(() => { /* non-critical */ });
+    }
+
     // Suggestion buttons
     document.querySelectorAll('.ai-chat-suggestion').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -668,6 +688,109 @@ function initAiChatWidget() {
             }
         });
     });
+
+    const greeting = document.getElementById('ai-chat-greeting');
+    const greetingForm = document.getElementById('ai-chat-greeting-form');
+    const greetingInput = document.getElementById('ai-chat-greeting-input');
+    const greetingSubmit = document.getElementById('ai-chat-greeting-submit');
+    const greetingError = document.getElementById('ai-chat-greeting-error');
+    const greetingAvatar = document.getElementById('ai-chat-greeting-avatar');
+    const welcome = messages.querySelector('.ai-chat-welcome');
+    const chatForm = document.getElementById('ai-chat-form');
+
+    if (greetingAvatar) {
+        greetingAvatar.src = aiAvatar;
+    }
+
+    // Three-state user model
+    if (!isReturningUser()) {
+        // NEW USER: show greeting, hide welcome and composer
+        if (greeting) greeting.hidden = false;
+        if (welcome) welcome.hidden = true;
+        if (chatForm) chatForm.style.display = 'none';
+        // Auto-focus the name input when panel opens
+        if (greetingInput) greetingInput.focus();
+    } else {
+        // RETURNING USER: greeting stays hidden, welcome + composer visible
+        if (greeting) greeting.hidden = true;
+        if (welcome) welcome.hidden = false;
+        if (chatForm) chatForm.style.display = '';
+    }
+
+    // Greeting form interaction
+    if (greetingInput && greetingSubmit) {
+        // Enable submit only when name is non-empty
+        greetingInput.addEventListener('input', () => {
+            const hasValue = greetingInput.value.trim().length > 0;
+            greetingSubmit.disabled = !hasValue;
+            if (greetingError) greetingError.hidden = true;
+        });
+
+        greetingForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const name = greetingInput.value.trim();
+            if (!name) {
+                if (greetingError) {
+                    greetingError.textContent = '名字不能为空';
+                    greetingError.hidden = false;
+                }
+                return;
+            }
+            if (name.length > 50) {
+                if (greetingError) {
+                    greetingError.textContent = '名字不能超过 50 个字符';
+                    greetingError.hidden = false;
+                }
+                return;
+            }
+
+            // Disable form during submission
+            greetingInput.disabled = true;
+            greetingSubmit.disabled = true;
+
+            try {
+                const response = await fetch(`${apiBase.replace('/stream', '')}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uuid: userUuid, name })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || result.error || '注册失败，请稍后重试');
+                }
+
+                // Success: save identity, transition to chat
+                markUserGreeted(result.profile.id);
+                userProfileId = result.profile.id;
+
+                // Fade out greeting
+                if (greeting) {
+                    greeting.style.opacity = '0';
+                    greeting.style.transition = 'opacity 200ms ease';
+                }
+
+                setTimeout(() => {
+                    if (greeting) greeting.hidden = true;
+                    if (welcome) welcome.hidden = false;
+                    if (chatForm) chatForm.style.display = '';
+                    adjustPanelHeight();
+                    input.focus();
+                }, 200);
+
+            } catch (error) {
+                if (greetingError) {
+                    greetingError.textContent = error.message || '注册失败，请稍后重试';
+                    greetingError.hidden = false;
+                }
+                greetingInput.disabled = false;
+                greetingSubmit.disabled = false;
+                greetingInput.focus();
+            }
+        });
+    }
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -757,6 +880,37 @@ function getOrCreateSessionId() {
     }
 
     return sessionId;
+}
+
+const USER_UUID_KEY = 'ai_chat_user_uuid';
+const USER_PROFILE_ID_KEY = 'ai_chat_user_profile_id';
+const USER_GREETED_KEY = 'ai_chat_greeted';
+
+function getOrCreateUserUuid() {
+    let uuid = localStorage.getItem(USER_UUID_KEY);
+    if (!uuid) {
+        uuid = `user-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        localStorage.setItem(USER_UUID_KEY, uuid);
+    }
+    return uuid;
+}
+
+function getUserProfileId() {
+    return localStorage.getItem(USER_PROFILE_ID_KEY) || null;
+}
+
+function isReturningUser() {
+    return !!getUserProfileId() && localStorage.getItem(USER_GREETED_KEY) === '1';
+}
+
+function isGreetingActive() {
+    const greeting = document.getElementById('ai-chat-greeting');
+    return greeting && !greeting.hidden;
+}
+
+function markUserGreeted(profileId) {
+    localStorage.setItem(USER_PROFILE_ID_KEY, profileId);
+    localStorage.setItem(USER_GREETED_KEY, '1');
 }
 
 function getOrCreatePersonaPreference() {
@@ -852,7 +1006,8 @@ async function streamReply(apiBase, sessionId, userMessage, assistantNode) {
         body: JSON.stringify({
             session_id: sessionId,
             message: userMessage,
-            persona_id: currentPersonaId || 'warm-senior'
+            persona_id: currentPersonaId || 'warm-senior',
+            user_id: userProfileId || null
         })
     });
 
