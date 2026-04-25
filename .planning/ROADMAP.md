@@ -24,10 +24,10 @@ This milestone adds three capabilities to the existing Hugo blog's AI chat assis
 **UI hint**: yes
 
 Plans:
-- [ ] 01-01: System Prompt Composition Refactor (PRS-02, PRS-03, RAG-02) -- Critical path. Refactors static system prompt to per-request dynamic composition: base identity + persona prompt + posts index. Implements persona config file, `composeSystemPrompt(personaId)` function, token budget logging, and backend posts-index loader with graceful degradation.
-- [ ] 01-02: RAG Content Pipeline (RAG-01, RAG-03) -- Hugo custom output format template generating `posts-index.json` at build time, integration testing of content-aware AI responses across all 4 personalities, and content staleness handling (file watcher or periodic reload).
-- [ ] 01-03: Personality Presets UI (PRS-01, PRS-04) -- Dropdown selector in chat header, localStorage persistence matching existing session ID pattern, `persona_id` transmission in chat stream POST body, responsive styling at 320px, and dropdown interaction compatibility with hover-based panel open/close.
-- [ ] 01-04: Auto-Greeting Flow (GRT-01, GRT-02, GRT-03) -- Three-state user model (unknown/anonymous/identified), inline greeting UI with name input replacing chat composer, `POST /chat/register` endpoint with server-side name sanitization, greeting-to-chat transition after registration, returning-user skip logic, and panel pin during onboarding.
+- [ ] 01-01-PLAN.md -- System Prompt Composition Refactor (PRS-02, PRS-03, RAG-02) -- Critical path. Refactors static system prompt to per-request dynamic composition: base identity + persona prompt + posts index. Implements persona config file, `composeSystemPrompt(personaId)` function, token budget logging, and backend posts-index loader with graceful degradation.
+- [ ] 01-02-PLAN.md -- RAG Content Pipeline (RAG-01, RAG-03) -- Hugo custom output format template generating `posts-index.json` at build time, integration testing of content-aware AI responses across all 4 personalities, and content staleness handling (file watcher or periodic reload).
+- [ ] 01-03-PLAN.md -- Personality Presets UI (PRS-01, PRS-04) -- Dropdown selector in chat header, localStorage persistence matching existing session ID pattern, `persona_id` transmission in chat stream POST body, responsive styling at 320px, and dropdown interaction compatibility with hover-based panel open/close.
+- [ ] 01-04-PLAN.md -- Auto-Greeting Flow (GRT-01, GRT-02, GRT-03) -- Three-state user model (unknown/anonymous/identified), inline greeting UI with name input replacing chat composer, `POST /chat/register` endpoint with server-side name sanitization, greeting-to-chat transition after registration, returning-user skip logic, and panel pin during onboarding.
 
 ## Progress
 
