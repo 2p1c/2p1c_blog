@@ -85,3 +85,15 @@ canonifyURLs = true
     api_base = "/api/chat"
     launcher_image = "/images/chat-launcher.png"
     ai_avatar = "/images/ai-avatar.jpg"
+
+# Custom output format — generates posts-index.json for AI content awareness
+[outputFormats]
+  [outputFormats.PostsIndex]
+    mediaType = "application/json"
+    baseName = "posts-index"
+    isPlainText = true
+    notAlternative = true
+
+# Add PostsIndex output to home page — this is where .Data.Pages iterates all posts
+[outputs]
+  home = ["HTML", "PostsIndex", "RSS"]

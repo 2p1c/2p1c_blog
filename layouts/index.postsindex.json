@@ -1,0 +1,18 @@
+{{- /* Hugo template: posts-index.json — generates compact post index for AI system prompt */ -}}
+{{- $posts := slice -}}
+{{- $baseURL := .Site.BaseURL -}}
+{{- range where .Site.RegularPages "Section" "posts" -}}
+  {{- if not .Draft -}}
+    {{- $post := dict
+      "title" .Title
+      "description" .Description
+      "summary" .Summary
+      "date" (.Date.Format "2006-01-02")
+      "link" (.RelPermalink | absURL)
+      "tags" .Params.tags
+      "categories" .Params.categories
+    -}}
+    {{- $posts = $posts | append $post -}}
+  {{- end -}}
+{{- end -}}
+{{- $posts | jsonify -}}
