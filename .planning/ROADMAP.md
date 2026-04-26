@@ -6,7 +6,7 @@ This milestone adds three capabilities to the existing Hugo blog's AI chat assis
 
 ## Phases
 
-- [ ] **Phase 1: AI Chat Enhancement** -- Prompt composition refactor, RAG content awareness, personality presets, and auto-greeting flow; all 10 requirements delivered as one coherent capability upgrade.
+- [x] **Phase 1: AI Chat Enhancement** -- Prompt composition refactor, RAG content awareness, personality presets, and auto-greeting flow; all 10 requirements delivered as one coherent capability upgrade.
 
 ## Phase Details
 
@@ -36,4 +36,4 @@ Phase 1 executes as a single milestone. Plans execute in dependency order: 01-01
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. AI Chat Enhancement | 4/4 | In progress | - |
+| 1. AI Chat Enhancement | 4/4 | Complete | 2026-04-26 |

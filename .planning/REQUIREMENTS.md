@@ -210,16 +210,16 @@ All 10 requirements map to a single Phase 1 (the next sequential integer phase).
 
 | Requirement | Category | Phase | Plan | Status |
 |-------------|----------|-------|------|--------|
-| RAG-01 | Content Awareness | Phase 1 | 01-02 | Pending |
-| RAG-02 | Content Awareness | Phase 1 | 01-01 | Pending |
-| RAG-03 | Content Awareness | Phase 1 | 01-02 | Pending |
-| PRS-01 | Personality Presets | Phase 1 | 01-03 | Pending |
-| PRS-02 | Personality Presets | Phase 1 | 01-01 | Pending |
-| PRS-03 | Personality Presets | Phase 1 | 01-01 | Pending |
-| PRS-04 | Personality Presets | Phase 1 | 01-03 | Pending |
-| GRT-01 | Auto-Greeting | Phase 1 | 01-04 | Pending |
-| GRT-02 | Auto-Greeting | Phase 1 | 01-04 | Pending |
-| GRT-03 | Auto-Greeting | Phase 1 | 01-04 | Pending |
+| RAG-01 | Content Awareness | Phase 1 | 01-02 | Verified |
+| RAG-02 | Content Awareness | Phase 1 | 01-01 | Verified |
+| RAG-03 | Content Awareness | Phase 1 | 01-02 | Verified |
+| PRS-01 | Personality Presets | Phase 1 | 01-03 | Verified |
+| PRS-02 | Personality Presets | Phase 1 | 01-01 | Verified |
+| PRS-03 | Personality Presets | Phase 1 | 01-01 | Verified |
+| PRS-04 | Personality Presets | Phase 1 | 01-03 | Verified |
+| GRT-01 | Auto-Greeting | Phase 1 | 01-04 | Verified |
+| GRT-02 | Auto-Greeting | Phase 1 | 01-04 | Verified |
+| GRT-03 | Auto-Greeting | Phase 1 | 01-04 | Verified |
 
 **Mapped: 10/10** ✓
 
