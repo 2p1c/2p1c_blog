@@ -134,6 +134,21 @@ try {
   // Column already exists - ignore
 }
 
+// Migration: ensure user_profiles uses display_name (Phase 1 schema)
+const profileCols = db.prepare("PRAGMA table_info(user_profiles)").all().map(c => c.name);
+if (!profileCols.includes('display_name')) {
+  db.exec(`
+    DROP TABLE IF EXISTS user_profiles;
+    CREATE TABLE user_profiles (
+      id TEXT PRIMARY KEY,
+      display_name TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      last_seen_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_user_profiles_last_seen ON user_profiles(last_seen_at);
+  `);
+}
+
 const upsertSessionStmt = db.prepare(`
 INSERT INTO sessions (id, created_at, updated_at, user_id)
 VALUES (@id, @createdAt, @updatedAt, @userId)

@@ -804,8 +804,8 @@ h1, h2, h3, h4, h5, h6,
   bottom: 32px;
   right: 32px;
   z-index: 999;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   border: 1px solid oklch(75% 0.02 75);
   background: var(--card-bg);

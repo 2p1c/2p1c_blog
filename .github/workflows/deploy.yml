@@ -43,7 +43,12 @@ jobs:
         run: |
           rsync -av --delete public/ root@39.106.85.231:/var/www/html/
 
-      # 6. 修复服务器文件权限
+      # 6. 同步 posts-index.json 到 AI 后端并重启服务
+      - name: 更新 AI 助手内容索引
+        run: |
+          ssh root@39.106.85.231 "cp /var/www/html/posts-index.json /var/www/2p1c_blog/ai-assistant/data/posts-index.json && pm2 restart ai-assistant"
+
+      # 7. 修复服务器文件权限
       - name: 修复文件权限
         run: |
           ssh root@39.106.85.231 "sudo /usr/local/bin/fix-web-permissions.sh"
