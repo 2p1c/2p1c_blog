@@ -127,10 +127,17 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 CREATE INDEX IF NOT EXISTS idx_user_profiles_last_seen ON user_profiles(last_seen_at);
 `);
 
+// Migration: add user_id column to sessions if not exists
+try {
+  db.exec("ALTER TABLE sessions ADD COLUMN user_id TEXT REFERENCES user_profiles(id)");
+} catch {
+  // Column already exists - ignore
+}
+
 const upsertSessionStmt = db.prepare(`
-INSERT INTO sessions (id, created_at, updated_at)
-VALUES (@id, @createdAt, @updatedAt)
-ON CONFLICT(id) DO UPDATE SET updated_at = excluded.updated_at
+INSERT INTO sessions (id, created_at, updated_at, user_id)
+VALUES (@id, @createdAt, @updatedAt, @userId)
+ON CONFLICT(id) DO UPDATE SET updated_at = excluded.updated_at, user_id = COALESCE(excluded.user_id, user_id)
 `);
 
 const insertMessageStmt = db.prepare(`
@@ -164,13 +171,13 @@ WHERE id = ?
 
 const ensureSessionAndInsertMessage = db.transaction((sessionId, role, content) => {
   const now = Date.now();
-  upsertSessionStmt.run({ id: sessionId, createdAt: now, updatedAt: now });
+  upsertSessionStmt.run({ id: sessionId, createdAt: now, updatedAt: now, userId: null });
   insertMessageStmt.run({ sessionId, role, content, createdAt: now });
 });
 
 const clearSessionMessages = db.transaction((sessionId) => {
   const now = Date.now();
-  upsertSessionStmt.run({ id: sessionId, createdAt: now, updatedAt: now });
+  upsertSessionStmt.run({ id: sessionId, createdAt: now, updatedAt: now, userId: null });
   clearMessagesStmt.run(sessionId);
 });
 
