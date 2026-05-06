@@ -48,10 +48,10 @@ jobs:
         run: |
           ssh root@39.106.85.231 "cd /var/www/2p1c_blog && git pull && cd ai-assistant && npm ci --production"
 
-      # 7. 同步 posts-index.json、构建 embedding、重启后端
+      # 7. 同步 posts-index.json、构建 embedding（best-effort）、重启后端
       - name: 更新 AI 助手内容索引
         run: |
-          ssh root@39.106.85.231 "cp /var/www/html/posts-index.json /var/www/2p1c_blog/ai-assistant/data/posts-index.json && cd /var/www/2p1c_blog/ai-assistant && node scripts/build-index.js && pm2 restart ai-assistant"
+          ssh root@39.106.85.231 "cp /var/www/html/posts-index.json /var/www/2p1c_blog/ai-assistant/data/posts-index.json && cd /var/www/2p1c_blog/ai-assistant && (node scripts/build-index.js || echo 'Build index skipped (model unavailable)') && pm2 restart ai-assistant"
 
       # 8. 修复服务器文件权限
       - name: 修复文件权限

@@ -31,6 +31,7 @@ function loadSystemPrompt() {
 }
 
 import { estimateTokens, loadPersonasConfig, loadPostsIndex, composeSystemPrompt } from './src/prompt-composer.js';
+import { migrateEmbeddingsTable, searchRelevantPosts, formatRagKnowledge, generateEmbedding } from './src/rag.js';
 
 const personasConfig = loadPersonasConfig(path.resolve(__dirname, './config/personas.json'));
 const postsIndexText = loadPostsIndex(
@@ -39,12 +40,11 @@ const postsIndexText = loadPostsIndex(
     : path.resolve(__dirname, './data/posts-index.json')
 );
 
-// composeSystemPrompt 的包装函数，捕获启动时加载的配置
-// 提供与原始 composeSystemPrompt 相同的对外接口
-// 在 /chat/stream 处理器中每次请求调用，实现动态性格切换
-function composePrompt(personaId, userId = null) {
+// composePrompt 的包装函数
+// 每次请求调用，实现动态性格切换 + RAG 语义检索
+async function composePrompt(personaId, userId = null, userMessage = null) {
   const baseIdentity = loadSystemPrompt();
-  // Resolve user name for name-aware conversation
+
   let userName = null;
   if (userId && typeof userId === 'string') {
     try {
@@ -56,10 +56,22 @@ function composePrompt(personaId, userId = null) {
       // Non-critical — continue without name if lookup fails
     }
   }
-  return composeSystemPrompt(personaId, personasConfig, baseIdentity, postsIndexText, userName);
+
+  // RAG: 根据用户提问语义检索最相关文章
+  let ragKnowledge = '';
+  if (userMessage) {
+    const queryEmbedding = await generateEmbedding(userMessage);
+    if (queryEmbedding) {
+      const relevantPosts = searchRelevantPosts(db, queryEmbedding, 3);
+      ragKnowledge = formatRagKnowledge(relevantPosts, BASE_URL);
+    }
+  }
+
+  return composeSystemPrompt(personaId, personasConfig, baseIdentity, ragKnowledge, userName);
 }
 
 const PORT = Number(process.env.PORT || 3001);
+const BASE_URL = process.env.BASE_URL || 'https://2p1c.life';
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || '';
 const DEEPSEEK_BASE_URL = process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1';
 const DEEPSEEK_MODEL = process.env.DEEPSEEK_MODEL || 'deepseek-chat';
@@ -71,6 +83,7 @@ const AI_AVATAR_URL = process.env.AI_AVATAR_URL || '';
 
 const app = express();
 app.use(express.json({ limit: '64kb' }));
+app.use(express.static(path.join(__dirname, "static")));
 
 const DEV_ALLOWED_ORIGINS = new Set([
   'http://localhost:1313',
@@ -133,6 +146,9 @@ try {
 } catch {
   // Column already exists - ignore
 }
+
+// Migration: ensure post_embeddings table for RAG semantic search
+migrateEmbeddingsTable(db);
 
 // Migration: ensure user_profiles uses display_name (Phase 1 schema)
 const profileCols = db.prepare("PRAGMA table_info(user_profiles)").all().map(c => c.name);
@@ -929,10 +945,18 @@ app.post('/chat/stream', async (req, res) => {
 
   const contextMessages = selectContextStmt.all(sessionId, MAX_CONTEXT_MESSAGES);
 
+  let systemPrompt;
+  try {
+    systemPrompt = await composePrompt(personaId || null, userId || null, userMessage);
+  } catch (error) {
+    console.error('composePrompt failed:', error);
+    // 兜底：不带 RAG 知识的基本 system prompt
+    systemPrompt = composeSystemPrompt(personaId || null, personasConfig, loadSystemPrompt(), '', null);
+  }
   const upstreamPayload = {
     model: DEEPSEEK_MODEL,
     stream: true,
-    messages: buildUpstreamMessages(composePrompt(personaId || null, userId || null), contextMessages)
+    messages: buildUpstreamMessages(systemPrompt, contextMessages)
   };
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache');

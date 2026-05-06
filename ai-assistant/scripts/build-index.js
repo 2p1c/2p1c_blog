@@ -2,15 +2,23 @@
  * 从 posts-index.json 生成文章 embedding 并存入 SQLite
  * 使用 Transformers.js 本地模型，零 API 调用
  * 用法: node scripts/build-index.js
+ *
+ * 国内服务器设置环境变量: HF_MIRROR=https://hf-mirror.com
  */
 import dotenv from 'dotenv';
 import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { pipeline } from '@xenova/transformers';
+import { pipeline, env } from '@xenova/transformers';
 
 dotenv.config();
+
+// 支持 HF 镜像（国内服务器设置 HF_MIRROR=https://hf-mirror.com）
+if (process.env.HF_MIRROR) {
+  env.remoteHost = process.env.HF_MIRROR;
+  env.remotePathTemplate = '{model}/resolve/{revision}/';
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_PATH = process.env.DB_PATH || './data/chat.db';
@@ -19,6 +27,19 @@ const POSTS_INDEX_PATH = process.env.POSTS_INDEX_PATH
 
 function resolvePath(p) {
   return path.isAbsolute(p) ? p : path.resolve(__dirname, '..', p);
+}
+
+async function loadModel() {
+  try {
+    console.log('Loading embedding model...');
+    const model = await pipeline('feature-extraction', 'Xenova/bge-small-zh-v1.5', { quantized: true });
+    console.log('Model ready');
+    return model;
+  } catch (error) {
+    console.error(`Failed to load embedding model: ${error.message}`);
+    console.error('Set HF_MIRROR=https://hf-mirror.com if deploying in China.');
+    return null;
+  }
 }
 
 async function main() {
@@ -48,9 +69,13 @@ async function main() {
   const posts = JSON.parse(fs.readFileSync(POSTS_INDEX_PATH, 'utf-8'));
   console.log(`Found ${posts.length} posts in index`);
 
-  console.log('Loading embedding model...');
-  const embedder = await pipeline('feature-extraction', 'Xenova/bge-small-zh-v1.5', { quantized: true });
-  console.log('Model ready');
+  const embedder = await loadModel();
+  if (!embedder) {
+    console.log('Embedding model unavailable, skipping embedding generation.');
+    console.log('RAG semantic search will be disabled until model is available.');
+    db.close();
+    process.exit(0);
+  }
 
   const upsertStmt = db.prepare(`
     INSERT INTO post_embeddings (post_url, title, excerpt, date, tags, embedding, created_at)

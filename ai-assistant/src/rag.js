@@ -3,38 +3,67 @@
  * 使用 Transformers.js 本地 embedding 模型实现语义搜索
  */
 
-import { pipeline } from '@xenova/transformers';
+import { pipeline, env } from '@xenova/transformers';
+
+// 支持 HF 镜像（国内服务器设置 HF_MIRROR=https://hf-mirror.com）
+if (process.env.HF_MIRROR) {
+  env.remoteHost = process.env.HF_MIRROR;
+  env.remotePathTemplate = '{model}/resolve/{revision}/';
+}
 
 const MIN_RELEVANCE_SCORE = 0.25;
+const MODEL_LOAD_TIMEOUT_MS = 60_000;
 
 // 全局模型单例（进程生命周期内只加载一次）
 let embeddingPipeline = null;
+let modelLoadFailed = false;
 
 export async function loadEmbeddingModel() {
   if (embeddingPipeline) return embeddingPipeline;
+  if (modelLoadFailed) return null;
 
   console.log('[RAG] Loading embedding model bge-small-zh-v1.5...');
-  // bge-small-zh-v1.5: 24MB, 512 维, 中文优化
-  embeddingPipeline = await pipeline('feature-extraction', 'Xenova/bge-small-zh-v1.5', {
-    quantized: true,
-    progress_callback: (progress) => {
-      if (progress.status === 'download') {
-        const pct = progress.progress ? ` (${Math.round(progress.progress)}%)` : '';
-        console.log(`[RAG] Downloading model${pct}`);
-      }
-    }
-  });
-  console.log('[RAG] Embedding model ready');
-  return embeddingPipeline;
+  const startTime = Date.now();
+
+  try {
+    embeddingPipeline = await Promise.race([
+      pipeline('feature-extraction', 'Xenova/bge-small-zh-v1.5', {
+        quantized: true,
+        progress_callback: (progress) => {
+          if (progress.status === 'download') {
+            const pct = progress.progress ? ` (${Math.round(progress.progress)}%)` : '';
+            console.log(`[RAG] Downloading model${pct}`);
+          }
+        }
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Model load timed out after ' + MODEL_LOAD_TIMEOUT_MS + 'ms')), MODEL_LOAD_TIMEOUT_MS)
+      )
+    ]);
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    console.log(`[RAG] Embedding model ready (${elapsed}s)`);
+    return embeddingPipeline;
+  } catch (error) {
+    modelLoadFailed = true;
+    embeddingPipeline = null;
+    console.error(`[RAG] Failed to load embedding model: ${error.message}`);
+    console.error('[RAG] RAG semantic search will be disabled. Set HF_MIRROR=https://hf-mirror.com if in China.');
+    return null;
+  }
 }
 
 export async function generateEmbedding(text) {
-  if (!embeddingPipeline) {
-    await loadEmbeddingModel();
-  }
+  const model = await loadEmbeddingModel();
+  if (!model) return null;
 
-  const result = await embeddingPipeline(text, { pooling: 'mean', normalize: true });
-  return Array.from(result.data);
+  try {
+    const result = await model(text, { pooling: 'mean', normalize: true });
+    return Array.from(result.data);
+  } catch (error) {
+    console.error(`[RAG] generateEmbedding failed: ${error.message}`);
+    return null;
+  }
 }
 
 export function cosineSimilarity(a, b) {
