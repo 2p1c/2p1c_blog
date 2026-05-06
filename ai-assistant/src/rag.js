@@ -8,17 +8,22 @@
 
 import { pipeline, env } from '@xenova/transformers';
 
-// 支持 HF 镜像（国内服务器设置 HF_MIRROR=https://hf-mirror.com）
-if (process.env.HF_MIRROR) {
-  env.remoteHost = process.env.HF_MIRROR;
-  env.remotePathTemplate = '{model}/resolve/{revision}/';
-}
-
 const MIN_RELEVANCE_SCORE = 0.25;
 
 let embeddingPipeline = null;
 let modelLoadFailed = false;
 let modelLoadPromise = null;
+let mirrorConfigured = false;
+
+function configureMirror() {
+  if (mirrorConfigured) return;
+  mirrorConfigured = true;
+  if (process.env.HF_MIRROR) {
+    env.remoteHost = process.env.HF_MIRROR;
+    env.remotePathTemplate = '{model}/resolve/{revision}/';
+    console.log(`[RAG] Using HF mirror: ${process.env.HF_MIRROR}`);
+  }
+}
 
 /**
  * 预加载 embedding 模型（后台执行，不阻塞）
@@ -26,6 +31,7 @@ let modelLoadPromise = null;
  */
 export function preloadModel() {
   if (embeddingPipeline || modelLoadFailed || modelLoadPromise) return;
+  configureMirror();
 
   console.log('[RAG] Preloading embedding model in background...');
   modelLoadPromise = pipeline('feature-extraction', 'Xenova/bge-small-zh-v1.5', {
@@ -55,6 +61,8 @@ export function preloadModel() {
  * 生成文本 embedding。模型未就绪时返回 null（不阻塞等待）
  */
 export async function generateEmbedding(text) {
+  configureMirror();
+
   // 如果模型已在加载中，等待最多 3 秒
   if (modelLoadPromise && !modelLoadFailed) {
     try {
