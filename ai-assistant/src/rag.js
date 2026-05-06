@@ -63,8 +63,23 @@ export function preloadModel() {
 export async function generateEmbedding(text) {
   configureMirror();
 
-  // 如果模型已在加载中，等待最多 3 秒
-  if (modelLoadPromise && !modelLoadFailed) {
+  // If model hasn't been loaded yet, trigger loading
+  if (!embeddingPipeline && !modelLoadFailed && !modelLoadPromise) {
+    console.log('[RAG] Model not loaded, triggering background load');
+    preloadModel();
+    // Wait up to 10s for first load
+    if (modelLoadPromise) {
+      try {
+        await Promise.race([
+          modelLoadPromise,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
+        ]);
+      } catch {
+        console.log('[RAG] Model load timed out during request');
+      }
+    }
+  } else if (modelLoadPromise && !modelLoadFailed) {
+    // Model is already loading, wait up to 3s
     try {
       await Promise.race([
         modelLoadPromise,
@@ -75,7 +90,12 @@ export async function generateEmbedding(text) {
     }
   }
 
-  if (!embeddingPipeline) return null;
+  if (!embeddingPipeline) {
+    console.log('[RAG] No embedding pipeline available, skipping RAG');
+    return null;
+  }
+
+  console.log(`[RAG] Generating embedding for query: "${text.slice(0, 60)}..."`);
 
   try {
     const result = await embeddingPipeline(text, { pooling: 'mean', normalize: true });

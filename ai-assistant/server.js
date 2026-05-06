@@ -60,10 +60,14 @@ async function composePrompt(personaId, userId = null, userMessage = null) {
   // RAG: 根据用户提问语义检索最相关文章
   let ragKnowledge = '';
   if (userMessage) {
+    console.log(`[RAG] Processing query: "${userMessage.slice(0, 80)}"`);
     const queryEmbedding = await generateEmbedding(userMessage);
     if (queryEmbedding) {
       const relevantPosts = searchRelevantPosts(db, queryEmbedding, 3);
+      console.log(`[RAG] Found ${relevantPosts.length} relevant posts`);
       ragKnowledge = formatRagKnowledge(relevantPosts, BASE_URL);
+    } else {
+      console.log('[RAG] No embedding generated, skipping knowledge injection');
     }
   }
 
