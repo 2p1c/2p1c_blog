@@ -88,11 +88,11 @@ export function loadPostsIndex(indexPath) {
  * 动态组合系统提示词。
  * 结构：## IDENTITY → ## TONE → ## KNOWLEDGE（分层顺序）
  * TONE 使用 bookend 策略：开头和结尾都有性格提醒。
- * KNOWLEDGE 仅在 postsIndexText 非空时添加。
+ * KNOWLEDGE 使用 ragKnowledge（由 RAG 模块检索后预格式化），为空时跳过。
  * personaId 未知时回退到默认 persona（默认 warm-senior）。
  * 预估 token 数超过预算 80% 时记录警告。
  */
-export function composeSystemPrompt(personaId, personasConfig, baseIdentity, postsIndexText, userName = null) {
+export function composeSystemPrompt(personaId, personasConfig, baseIdentity, ragKnowledge, userName = null) {
   // 解析 personaId：未知或空值时回退到默认
   const resolvedPersonaId = personaId && personasConfig.personas[personaId]
     ? personaId
@@ -109,10 +109,10 @@ export function composeSystemPrompt(personaId, personasConfig, baseIdentity, pos
   // ## TONE 段：性格提示 + bookend 策略
   const toneSection = `\n## TONE — 语气和风格\n${persona.prompt}\n\n请始终遵循以上语气风格。记住你的性格设定，在每一次回复中都要自然地体现出来。`;
 
-  // ## KNOWLEDGE 段：仅在 postsIndexText 非空时添加
+  // ## KNOWLEDGE 段：ragKnowledge 由 RAG 模块预格式化，直接使用
   let knowledgeSection = '';
-  if (postsIndexText) {
-    knowledgeSection = `\n## KNOWLEDGE — 博客内容\n以下是博客中已发布文章的信息，你可以根据这些信息回答用户关于博客内容的问题，推荐相关文章，或讨论文章主题：\n\n${postsIndexText}\n\n当用户询问博客相关内容时，请基于以上真实文章信息回答。如果没有匹配的文章，诚实告知而不是编造不存在的内容。`;
+  if (ragKnowledge) {
+    knowledgeSection = ragKnowledge;
   }
 
   // 用户名称注入：如果提供了用户名，插入到 ## IDENTITY 段
@@ -125,7 +125,7 @@ export function composeSystemPrompt(personaId, personasConfig, baseIdentity, pos
   // Token 预算监控
   const estimatedTokens = estimateTokens(composed);
   if (estimatedTokens > TOKEN_BUDGET * 0.8) {
-    console.warn(`[TOKEN-BUDGET] System prompt estimated at ${estimatedTokens} tokens (${Math.round(estimatedTokens / TOKEN_BUDGET * 100)}% of ${TOKEN_BUDGET} target). persona_id="${resolvedPersonaId}", posts_index=${postsIndexText ? 'loaded' : 'empty'}`);
+    console.warn(`[TOKEN-BUDGET] System prompt estimated at ${estimatedTokens} tokens (${Math.round(estimatedTokens / TOKEN_BUDGET * 100)}% of ${TOKEN_BUDGET} target). persona_id="${resolvedPersonaId}", rag_knowledge=${ragKnowledge ? 'present' : 'empty'}`);
   }
 
   return composed;

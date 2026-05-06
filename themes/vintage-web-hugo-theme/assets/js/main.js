@@ -971,7 +971,12 @@ function appendMessage(container, role, content, aiAvatar, userAvatar, isThinkin
 
     const body = document.createElement('div');
     body.className = 'ai-chat-msg-body';
-    body.textContent = content;
+    // Use innerHTML + marked for assistant messages to render markdown (links, bold, etc.)
+    if (role === 'assistant' && typeof marked !== 'undefined' && content) {
+        body.innerHTML = marked.parse(content);
+    } else {
+        body.textContent = content;
+    }
 
     row.appendChild(avatar);
     row.appendChild(label);
@@ -1042,7 +1047,13 @@ async function streamReply(apiBase, sessionId, userMessage, assistantNode) {
             }
 
             if (parsed.event === 'token' && parsed.data?.delta) {
-                assistantNode.textContent += parsed.data.delta;
+                const raw = (assistantNode.dataset.raw || '') + parsed.data.delta;
+                assistantNode.dataset.raw = raw;
+                if (typeof marked !== 'undefined') {
+                    assistantNode.innerHTML = marked.parse(raw);
+                } else {
+                    assistantNode.textContent = raw;
+                }
             }
 
             if (parsed.event === 'error') {
