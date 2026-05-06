@@ -963,7 +963,7 @@ app.post('/chat/stream', async (req, res) => {
   };
   res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Connection', 'close');
   if (typeof res.flushHeaders === 'function') {
     res.flushHeaders();
   }

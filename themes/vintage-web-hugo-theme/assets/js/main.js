@@ -835,7 +835,12 @@ function initAiChatWidget() {
         try {
             await streamReply(apiBase, sessionId, text, assistantNode);
         } catch (error) {
-            assistantNode.textContent = '请求失败：' + error.message;
+            // If streaming already completed, ignore TLS cleanup errors
+            if (assistantNode.dataset.raw) {
+                console.warn('Stream error after data received (ignored):', error.message);
+            } else {
+                assistantNode.textContent = '请求失败：' + error.message;
+            }
         } finally {
             isStreaming = false;
             input.disabled = false;
