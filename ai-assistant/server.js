@@ -31,7 +31,7 @@ function loadSystemPrompt() {
 }
 
 import { estimateTokens, loadPersonasConfig, loadPostsIndex, composeSystemPrompt } from './src/prompt-composer.js';
-import { migrateEmbeddingsTable, searchRelevantPosts, formatRagKnowledge, generateEmbedding } from './src/rag.js';
+import { migrateEmbeddingsTable, searchRelevantPosts, formatRagKnowledge, generateEmbedding, preloadModel } from './src/rag.js';
 
 const personasConfig = loadPersonasConfig(path.resolve(__dirname, './config/personas.json'));
 const postsIndexText = loadPostsIndex(
@@ -149,6 +149,9 @@ try {
 
 // Migration: ensure post_embeddings table for RAG semantic search
 migrateEmbeddingsTable(db);
+
+// 后台预加载 embedding 模型（不阻塞启动）
+preloadModel();
 
 // Migration: ensure user_profiles uses display_name (Phase 1 schema)
 const profileCols = db.prepare("PRAGMA table_info(user_profiles)").all().map(c => c.name);

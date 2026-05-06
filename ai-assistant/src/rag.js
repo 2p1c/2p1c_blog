@@ -1,6 +1,9 @@
 /**
  * RAG (Retrieval-Augmented Generation) 模块
  * 使用 Transformers.js 本地 embedding 模型实现语义搜索
+ *
+ * 模型在后台异步加载，不阻塞请求。
+ * 国内服务器设置环境变量: HF_MIRROR=https://hf-mirror.com
  */
 
 import { pipeline, env } from '@xenova/transformers';
@@ -12,53 +15,62 @@ if (process.env.HF_MIRROR) {
 }
 
 const MIN_RELEVANCE_SCORE = 0.25;
-const MODEL_LOAD_TIMEOUT_MS = 60_000;
 
-// 全局模型单例（进程生命周期内只加载一次）
 let embeddingPipeline = null;
 let modelLoadFailed = false;
+let modelLoadPromise = null;
 
-export async function loadEmbeddingModel() {
-  if (embeddingPipeline) return embeddingPipeline;
-  if (modelLoadFailed) return null;
+/**
+ * 预加载 embedding 模型（后台执行，不阻塞）
+ * 调用后模型在后台下载，就绪前 RAG 静默跳过
+ */
+export function preloadModel() {
+  if (embeddingPipeline || modelLoadFailed || modelLoadPromise) return;
 
-  console.log('[RAG] Loading embedding model bge-small-zh-v1.5...');
-  const startTime = Date.now();
-
-  try {
-    embeddingPipeline = await Promise.race([
-      pipeline('feature-extraction', 'Xenova/bge-small-zh-v1.5', {
-        quantized: true,
-        progress_callback: (progress) => {
-          if (progress.status === 'download') {
-            const pct = progress.progress ? ` (${Math.round(progress.progress)}%)` : '';
-            console.log(`[RAG] Downloading model${pct}`);
-          }
-        }
-      }),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Model load timed out after ' + MODEL_LOAD_TIMEOUT_MS + 'ms')), MODEL_LOAD_TIMEOUT_MS)
-      )
-    ]);
-
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log(`[RAG] Embedding model ready (${elapsed}s)`);
-    return embeddingPipeline;
-  } catch (error) {
+  console.log('[RAG] Preloading embedding model in background...');
+  modelLoadPromise = pipeline('feature-extraction', 'Xenova/bge-small-zh-v1.5', {
+    quantized: true,
+    progress_callback: (progress) => {
+      if (progress.status === 'download') {
+        const pct = progress.progress ? ` (${Math.round(progress.progress)}%)` : '';
+        console.log(`[RAG] Downloading model${pct}`);
+      }
+    }
+  }).then(model => {
+    embeddingPipeline = model;
+    modelLoadPromise = null;
+    console.log('[RAG] Embedding model ready');
+    return model;
+  }).catch(error => {
     modelLoadFailed = true;
+    modelLoadPromise = null;
     embeddingPipeline = null;
     console.error(`[RAG] Failed to load embedding model: ${error.message}`);
-    console.error('[RAG] RAG semantic search will be disabled. Set HF_MIRROR=https://hf-mirror.com if in China.');
+    console.error('[RAG] RAG disabled. Set HF_MIRROR=https://hf-mirror.com if in China.');
     return null;
-  }
+  });
 }
 
+/**
+ * 生成文本 embedding。模型未就绪时返回 null（不阻塞等待）
+ */
 export async function generateEmbedding(text) {
-  const model = await loadEmbeddingModel();
-  if (!model) return null;
+  // 如果模型已在加载中，等待最多 3 秒
+  if (modelLoadPromise && !modelLoadFailed) {
+    try {
+      await Promise.race([
+        modelLoadPromise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+      ]);
+    } catch {
+      // 超时或失败，返回 null
+    }
+  }
+
+  if (!embeddingPipeline) return null;
 
   try {
-    const result = await model(text, { pooling: 'mean', normalize: true });
+    const result = await embeddingPipeline(text, { pooling: 'mean', normalize: true });
     return Array.from(result.data);
   } catch (error) {
     console.error(`[RAG] generateEmbedding failed: ${error.message}`);
@@ -71,7 +83,7 @@ export function cosineSimilarity(a, b) {
   for (let i = 0; i < a.length; i++) {
     dot += a[i] * b[i];
   }
-  return dot; // normalize=true 时结果已在 [-1, 1]，向量同向时 dot=cosine
+  return dot; // normalize=true 时结果已在 [-1, 1]
 }
 
 export function migrateEmbeddingsTable(db) {
@@ -117,7 +129,6 @@ export function formatRagKnowledge(posts, baseUrl = '') {
   const lines = posts.map(p => {
     const dateStr = p.date ? ` (${p.date.slice(0, 10)})` : '';
     const tagStr = p.tags ? ` [${p.tags}]` : '';
-    // 替换 localhost 为实际域名
     const articleUrl = p.url.replace(/^https?:\/\/localhost:\d+/, baseUrl);
     return `- [${p.title}${dateStr}]${tagStr}：[${articleUrl}]\n  ${p.excerpt}`;
   });
