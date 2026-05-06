@@ -435,6 +435,10 @@ function initThemePersistence() {
     });
 }
 
+// Module-level state shared between initAiChatWidget and streamReply
+let currentPersonaId = null;
+let userProfileId = null;
+
 function initAiChatWidget() {
     const widget = document.getElementById('ai-chat-widget');
     if (!widget) {
@@ -474,7 +478,7 @@ function initAiChatWidget() {
     let hoverReady = false;
     let suppressHoverUntil = 0;
     let personaDropdownOpen = false;
-    let currentPersonaId = null;
+    currentPersonaId = null;
 
     window.addEventListener('pointermove', () => {
         hoverReady = true;
@@ -659,7 +663,7 @@ function initAiChatWidget() {
 
     // Greeting flow: fetch user profile for returning users
     const userUuid = getOrCreateUserUuid();
-    let userProfileId = getUserProfileId();
+    userProfileId = getUserProfileId();
 
     // Pre-fetch user profile on init (returning users)
     if (userProfileId) {
@@ -1016,8 +1020,8 @@ async function streamReply(apiBase, sessionId, userMessage, assistantNode) {
         body: JSON.stringify({
             session_id: sessionId,
             message: userMessage,
-            persona_id: currentPersonaId || 'warm-senior',
-            user_id: userProfileId || null
+            persona_id: currentPersonaId || getOrCreatePersonaPreference(),
+            user_id: userProfileId || getUserProfileId()
         })
     });
 
