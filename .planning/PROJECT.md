@@ -18,19 +18,18 @@
 - ✓ 用户通过 localStorage UUID 识别回访 — Phase 1
 - ✓ Nginx 反向代理 `/api/*` → Node 4310 — existing
 - ✓ 对话面板 UI（圆形按钮 + 弹出面板） — existing
+- ✓ RAG-01: Hugo build 时生成 `posts-index.json` — Validated in Phase 1
+- ✓ RAG-02: 后端加载 `posts-index.json` 并注入 system prompt — Validated in Phase 1
+- ✓ RAG-03: AI 能回答博客内容相关问题 — Validated in Phase 1
+- ✓ PRS-01: 对话面板顶部显示性格选择下拉框 — Validated in Phase 1
+- ✓ PRS-02: 四种预设性格定义 — Validated in Phase 1
+- ✓ PRS-03: 性格选择后实时更新 system prompt — Validated in Phase 1
+- ✓ PRS-04: 性格选择持久化到 localStorage — Validated in Phase 1
+- ✓ GRT-01: 新用户首次打开对话面板时显示 AI 问候 + 名字输入框 — Validated in Phase 1
+- ✓ GRT-02: 用户提交名字后自动调用 /register 注册 — Validated in Phase 1
+- ✓ GRT-03: 已注册回访用户跳过问候 — Validated in Phase 1
 
 ### Active
-
-- [ ] **RAG-01**: Hugo build 时生成 `posts-index.json`（文章标题、摘要、标签、发布日期、链接）
-- [ ] **RAG-02**: 后端启动/刷新时加载 `posts-index.json` 并注入 system prompt
-- [ ] **RAG-03**: AI 能回答博客内容相关问题（文章推荐、按标签/主题查询、最新文章列表）
-- [ ] **PRS-01**: 对话面板顶部显示性格选择下拉框
-- [ ] **PRS-02**: 四种预设性格：温暖学长、幽默朋友、文艺青年、重金属黑色死亡摇滚青年
-- [ ] **PRS-03**: 用户选择性格后实时更新 system prompt，切换性格立即可用
-- [ ] **PRS-04**: 性格选择持久化到 localStorage，下次访问保持上次选择
-- [ ] **GRT-01**: 新用户首次打开对话面板时显示 AI 问候 + 名字输入框
-- [ ] **GRT-02**: 用户提交名字后自动调用 /register 注册，更新 currentUserId
-- [ ] **GRT-03**: 已注册回访用户跳过问候，直接显示正常对话界面
 
 ### Out of Scope
 
@@ -84,4 +83,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-26 after initialization*
+*Last updated: 2026-04-26 — Phase 1 complete, all 10 requirements validated*

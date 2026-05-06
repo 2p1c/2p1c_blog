@@ -51,6 +51,7 @@
     {{ end }}
     
     {{ block "head" . }}{{ end }}
+    {{ partial "marked-script.html" . }}
 </head>
 <body>
     <!-- Browser Chrome Effect -->
@@ -137,6 +138,7 @@
     </div>
     {{ end }}
     
+    <script src="/lib/marked.min.js"></script>
     <!-- JavaScript -->
     {{ $js := resources.Get "js/main.js" }}
     {{ if $js }}
